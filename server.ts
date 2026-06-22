@@ -81,6 +81,48 @@ async function startServer() {
     }
   });
 
+  // API route to send contact us email
+  app.post("/api/contact-us", async (req, res) => {
+    try {
+      const { fullName, email, subject, message } = req.body;
+
+      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+        console.warn("Gmail credentials not configured. Contact email not sent.");
+        return res.json({ success: true, message: "Credentials not configured" });
+      }
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_APP_PASSWORD.replace(/\s+/g, ''),
+        },
+      });
+
+      const emailContent = `
+        <h1>Tin nhắn mới từ ${fullName}</h1>
+        <p><strong>Khách hàng:</strong> ${fullName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Chủ đề:</strong> ${subject || 'Không có'}</p>
+        <p><strong>Nội dung:</strong></p>
+        <p>${message.replace(/\n/g, '<br/>')}</p>
+      `;
+
+      await transporter.sendMail({
+        from: `"Chạm Website" <${process.env.GMAIL_USER}>`,
+        to: process.env.GMAIL_USER, // Send back to our main email
+        subject: `[Liên Hệ] ${subject || 'Có tin nhắn mới từ khách hàng'}`,
+        html: emailContent,
+        replyTo: email,
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error sending contact email:", error);
+      res.status(500).json({ error: "Failed to send contact email", details: error.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

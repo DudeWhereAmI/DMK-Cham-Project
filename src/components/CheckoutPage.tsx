@@ -8,6 +8,10 @@ import { X, CheckCircle, Tag, Copy, ShieldCheck } from 'lucide-react';
 interface CheckoutPageProps {
   cart: CartItem[];
   lang: 'vi' | 'en';
+  globalDiscountCode: string;
+  setGlobalDiscountCode: (code: string) => void;
+  isGlobalDiscountApplied: boolean;
+  setIsGlobalDiscountApplied: (applied: boolean) => void;
   onNavigateHome: () => void;
   onNavigateToShop: () => void;
   onNavigateToLogin: () => void;
@@ -18,6 +22,10 @@ interface CheckoutPageProps {
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   cart,
   lang,
+  globalDiscountCode,
+  setGlobalDiscountCode,
+  isGlobalDiscountApplied,
+  setIsGlobalDiscountApplied,
   onNavigateHome,
   onNavigateToShop,
   onNavigateToLogin,
@@ -77,14 +85,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [preorderSuccess, setPreorderSuccess] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const [discountCode, setDiscountCode] = useState('');
-  const [isDiscountApplied, setIsDiscountApplied] = useState(false);
-
   const subtotal = cart.reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
   const packagingFee = wrappingOption === 'giftBox' ? 20000 : 0;
   const shippingFee = 0; // Free shipping for now
   const baseTotal = subtotal + packagingFee + shippingFee;
-  const discountAmount = isDiscountApplied ? baseTotal * 0.2 : 0;
+  const discountAmount = isGlobalDiscountApplied ? baseTotal * 0.2 : 0;
   const total = baseTotal - discountAmount;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -97,11 +102,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleApplyDiscount = () => {
-    if (discountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA') {
-      setIsDiscountApplied(true);
+    if (globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA') {
+      setIsGlobalDiscountApplied(true);
       alert(lang === 'vi' ? 'Áp dụng mã giảm giá thành công!' : 'Discount applied successfully!');
     } else {
-      setIsDiscountApplied(false);
+      setIsGlobalDiscountApplied(false);
       alert(lang === 'vi' ? 'Mã giảm giá không hợp lệ.' : 'Invalid discount code.');
     }
   };
@@ -129,7 +134,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         packagingFee,
         total,
         discountAmount,
-        discountCode: isDiscountApplied ? discountCode : '',
+        discountCode: isGlobalDiscountApplied ? globalDiscountCode : '',
         wrappingOption,
         paymentMethod,
         status: 'preorder', // Mark as preorder
@@ -173,6 +178,21 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       } catch (emailError) {
         // Do not fail the whole process if email logic errors out
         console.error("Failed to trigger email:", emailError);
+      }
+
+      // Track purchase event with GA
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'purchase', {
+          transaction_id: newOrderRef.id,
+          value: total,
+          currency: 'VND',
+          items: sanitizedCart.map((item: any) => ({
+            item_id: item.product.id,
+            item_name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+          }))
+        });
       }
 
       // Show success screen within the popup
@@ -397,13 +417,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             <div className="flex gap-2">
               <input 
                 type="text" 
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value)}
+                value={globalDiscountCode}
+                onChange={(e) => setGlobalDiscountCode(e.target.value)}
                 placeholder={lang === 'vi' ? 'Nhập mã giảm giá' : 'Discount code'}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#990000] text-sm uppercase"
-                disabled={isDiscountApplied}
+                disabled={isGlobalDiscountApplied}
               />
-              {!isDiscountApplied ? (
+              {!isGlobalDiscountApplied ? (
                 <button 
                   type="button" 
                   onClick={handleApplyDiscount}
@@ -415,8 +435,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 <button 
                   type="button" 
                   onClick={() => {
-                    setIsDiscountApplied(false);
-                    setDiscountCode('');
+                    setIsGlobalDiscountApplied(false);
+                    setGlobalDiscountCode('');
                   }}
                   className="px-4 py-2 bg-red-100 text-[#990000] font-medium text-sm rounded-md hover:bg-red-200 transition"
                 >
@@ -424,7 +444,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </button>
               )}
             </div>
-            {isDiscountApplied && (
+            {isGlobalDiscountApplied && (
               <div className="text-xs text-green-600 flex items-center gap-1 mt-1">
                 <CheckCircle className="w-3 h-3" />
                 {lang === 'vi' ? 'Đã áp dụng mã giảm 20%' : '20% discount applied'}
@@ -447,7 +467,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <span>{lang === 'vi' ? 'Phí vận chuyển' : 'Shipping'}</span>
               <span>-</span>
             </div>
-            {isDiscountApplied && (
+            {isGlobalDiscountApplied && (
               <div className="flex justify-between text-sm font-bold text-green-600">
                 <span>{lang === 'vi' ? 'Giảm giá (20%)' : 'Discount (20%)'}</span>
                 <span>-{formatVND(discountAmount)}</span>

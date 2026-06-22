@@ -6,6 +6,10 @@ import { Trash2, Plus, Minus, ChevronRight, Heart } from 'lucide-react';
 interface CartPageProps {
   cart: CartItem[];
   lang: 'vi' | 'en';
+  globalDiscountCode: string;
+  setGlobalDiscountCode: (code: string) => void;
+  isGlobalDiscountApplied: boolean;
+  setIsGlobalDiscountApplied: (applied: boolean) => void;
   onUpdateQuantity: (id: string, qty: number) => void;
   onRemoveItem: (id: string) => void;
   onNavigateToCheckout: () => void;
@@ -16,6 +20,10 @@ interface CartPageProps {
 export const CartPage: React.FC<CartPageProps> = ({
   cart,
   lang,
+  globalDiscountCode,
+  setGlobalDiscountCode,
+  isGlobalDiscountApplied,
+  setIsGlobalDiscountApplied,
   onUpdateQuantity,
   onRemoveItem,
   onNavigateToCheckout,
@@ -28,6 +36,16 @@ export const CartPage: React.FC<CartPageProps> = ({
 
   const calculateSubtotal = () => {
     return cart.reduce((acc, item) => acc + item.finalPrice * item.quantity, 0);
+  };
+  
+  const handleApplyDiscount = () => {
+    if (globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA') {
+      setIsGlobalDiscountApplied(true);
+      alert(lang === 'vi' ? 'Áp dụng mã giảm giá thành công!' : 'Discount applied successfully!');
+    } else {
+      setIsGlobalDiscountApplied(false);
+      alert(lang === 'vi' ? 'Mã giảm giá không hợp lệ.' : 'Invalid discount code.');
+    }
   };
 
   const recommendedProducts = PRODUCTS.slice(0, 4);
@@ -144,21 +162,58 @@ export const CartPage: React.FC<CartPageProps> = ({
             <div className="lg:w-[400px] shrink-0">
               <div className="bg-[#F5F5F5] rounded-xl p-6 space-y-6 sticky top-28">
                 {/* Promo Code */}
-                <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder={lang === 'vi' ? 'Nhập mã giảm giá' : 'Enter voucher code'}
-                    className="flex-1 bg-white border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#990000] focus:border-[#990000]"
-                  />
-                  <button className="px-6 bg-[#C49A9A] hover:bg-[#A97575] text-white font-bold text-sm rounded-md transition uppercase tracking-wider">
-                    {lang === 'vi' ? 'Áp Dụng' : 'Apply'}
-                  </button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={globalDiscountCode}
+                      onChange={(e) => setGlobalDiscountCode(e.target.value)}
+                      placeholder={lang === 'vi' ? 'Nhập mã giảm giá' : 'Enter voucher code'}
+                      className="flex-1 bg-white border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#990000] focus:border-[#990000] uppercase"
+                      disabled={isGlobalDiscountApplied}
+                    />
+                    {!isGlobalDiscountApplied ? (
+                      <button 
+                         onClick={handleApplyDiscount}
+                         className="px-6 bg-[#C49A9A] hover:bg-[#A97575] text-white font-bold text-sm rounded-md transition uppercase tracking-wider"
+                      >
+                        {lang === 'vi' ? 'Áp Dụng' : 'Apply'}
+                      </button>
+                    ) : (
+                      <button 
+                         onClick={() => {
+                           setIsGlobalDiscountApplied(false);
+                           setGlobalDiscountCode('');
+                         }}
+                         className="px-6 bg-[#d1d1d1] hover:bg-[#990000] text-gray-700 hover:text-white font-bold text-sm rounded-md transition uppercase tracking-wider"
+                      >
+                        {lang === 'vi' ? 'Hủy' : 'Remove'}
+                      </button>
+                    )}
+                  </div>
+                  {isGlobalDiscountApplied && (
+                    <div className="text-xs text-green-600 font-bold ml-1">
+                      {lang === 'vi' ? '✓ Đã áp dụng mã giảm 20%' : '✓ 20% discount applied'}
+                    </div>
+                  )}
                 </div>
 
                 {/* Subtotal */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-300">
-                  <span className="text-lg font-bold text-gray-900">{lang === 'vi' ? 'Tạm tính:' : 'Subtotal:'}</span>
-                  <span className="text-lg font-bold text-gray-900">{formatVND(calculateSubtotal())}</span>
+                <div className="flex flex-col gap-2 pt-4 border-t border-gray-300">
+                  <div className="flex justify-between items-center text-gray-600 text-sm">
+                    <span>{lang === 'vi' ? 'Tạm tính' : 'Subtotal'}</span>
+                    <span>{formatVND(calculateSubtotal())}</span>
+                  </div>
+                  {isGlobalDiscountApplied && (
+                    <div className="flex justify-between items-center text-green-600 font-bold text-sm">
+                      <span>{lang === 'vi' ? 'Giảm giá (20%)' : 'Discount (20%)'}</span>
+                      <span>-{formatVND(calculateSubtotal() * 0.2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-200">
+                    <span className="text-lg font-bold text-gray-900">{lang === 'vi' ? 'Tổng cộng:' : 'Total:'}</span>
+                    <span className="text-lg font-bold text-gray-900">{formatVND(isGlobalDiscountApplied ? calculateSubtotal() * 0.8 : calculateSubtotal())}</span>
+                  </div>
                 </div>
 
                 <button

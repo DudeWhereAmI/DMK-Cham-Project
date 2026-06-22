@@ -38,6 +38,12 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product>(PRODUCTS[0]);
   const [selectedElementId, setSelectedElementId] = useState<string>('kim');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMsg, setNewsletterMsg] = useState('');
+  
+  const [globalDiscountCode, setGlobalDiscountCode] = useState('');
+  const [isGlobalDiscountApplied, setIsGlobalDiscountApplied] = useState(false);
   
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
 
@@ -99,6 +105,44 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('cham_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_title: currentView,
+        page_location: window.location.href,
+        page_path: `/${currentView === 'home' ? '' : currentView}`
+      });
+
+      if (currentView === 'checkout') {
+        const total = cart.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
+        window.gtag('event', 'begin_checkout', {
+          currency: 'VND',
+          value: total,
+          items: cart.map(item => ({
+            item_id: item.product.id,
+            item_name: item.product.name,
+            price: item.finalPrice,
+            quantity: item.quantity
+          }))
+        });
+      }
+
+      if (currentView === 'shop' || currentView === 'home') {
+        window.gtag('event', 'view_item_list', {
+          item_list_id: currentView,
+          item_list_name: currentView === 'shop' ? 'Shop All' : 'Featured Homepage',
+          items: PRODUCTS.map((product, index) => ({
+            item_id: product.id,
+            item_name: product.name,
+            price: product.basePrice,
+            item_category: product.category,
+            index: index
+          }))
+        });
+      }
+    }
+  }, [currentView, cart]);
   
   // Language switcher state
   const [lang, setLang] = useState<'vi' | 'en'>('vi');
@@ -143,6 +187,30 @@ export default function App() {
 
   // Keep state sync when switching products
   const handleSelectProduct = (product: Product, elementOverride?: ElementType) => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'select_item', {
+        item_list_id: currentView,
+        item_list_name: currentView === 'shop' ? 'Shop All' : 'Featured Homepage',
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          price: product.basePrice,
+          item_category: product.category
+        }]
+      });
+
+      window.gtag('event', 'view_item', {
+        currency: 'VND',
+        value: product.basePrice,
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          price: product.basePrice,
+          item_category: product.category
+        }]
+      });
+    }
+
     setSelectedProduct(product);
     setRecentlyViewedIds(prev => {
       const filtered = prev.filter(id => id !== product.id);
@@ -236,12 +304,38 @@ export default function App() {
       quantity: 1,
     };
 
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'add_to_cart', {
+        currency: 'VND',
+        value: finalPrice,
+        items: [{
+          item_id: selectedProduct.id,
+          item_name: selectedProduct.name,
+          price: finalPrice,
+          quantity: 1
+        }]
+      });
+    }
+
     setCart((prevCart) => [...prevCart, newCartItem]);
     triggerAlert(`✨ Successfully added customized "${selectedProduct.name}" to your Bespoke Bag!`);
     setIsCartOpen(true);
   };
 
   const handleAddToCartFromPicks = (item: CartItem) => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'add_to_cart', {
+        currency: 'VND',
+        value: item.finalPrice,
+        items: [{
+          item_id: item.product.id,
+          item_name: item.product.name,
+          price: item.finalPrice,
+          quantity: item.quantity || 1
+        }]
+      });
+    }
+
     setCart((prevCart) => [...prevCart, item]);
     triggerAlert(lang === 'vi' ? 'Đã thêm nhanh sản phẩm vào giỏ hàng!' : 'Quickly added item to bag!');
   };
@@ -272,6 +366,35 @@ export default function App() {
 
   const handleClearCart = () => {
     setCart([]);
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail || !/^\S+@\S+\.\S+$/.test(newsletterEmail)) {
+       setNewsletterStatus('error');
+       setNewsletterMsg(lang === 'vi' ? 'Email không hợp lệ' : 'Invalid email format');
+       return;
+    }
+    
+    setNewsletterStatus('loading');
+    setNewsletterMsg('');
+    try {
+      await addDoc(collection(db, 'subscribers'), {
+        email: newsletterEmail,
+        createdAt: Timestamp.now(),
+      });
+      setNewsletterStatus('success');
+      setNewsletterMsg(lang === 'vi' ? 'Đăng ký thành công!' : 'Successfully subscribed!');
+      setNewsletterEmail('');
+      setTimeout(() => {
+        setNewsletterStatus('idle');
+        setNewsletterMsg('');
+      }, 5000);
+    } catch (err) {
+      console.error("Error adding subscriber: ", err);
+      setNewsletterStatus('error');
+      setNewsletterMsg(lang === 'vi' ? 'Có lỗi xảy ra' : 'An error occurred');
+    }
   };
 
   // Navigation handlers
@@ -535,6 +658,10 @@ export default function App() {
           <CheckoutPage 
             cart={cart}
             lang={lang}
+            globalDiscountCode={globalDiscountCode}
+            setGlobalDiscountCode={setGlobalDiscountCode}
+            isGlobalDiscountApplied={isGlobalDiscountApplied}
+            setIsGlobalDiscountApplied={setIsGlobalDiscountApplied}
             onNavigateHome={() => {
               setCurrentView('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -562,6 +689,10 @@ export default function App() {
           <CartPage 
             cart={cart}
             lang={lang}
+            globalDiscountCode={globalDiscountCode}
+            setGlobalDiscountCode={setGlobalDiscountCode}
+            isGlobalDiscountApplied={isGlobalDiscountApplied}
+            setIsGlobalDiscountApplied={setIsGlobalDiscountApplied}
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
             onNavigateToCheckout={() => {
@@ -777,11 +908,30 @@ export default function App() {
                     <h3 className="font-black text-white uppercase text-base tracking-wider mb-0 lg:mb-2">
                       {lang === 'vi' ? 'Đăng Ký Nhận Tin' : 'Newsletter'}
                     </h3>
-                    <form className="flex w-full shadow-md lg:max-w-xs" onSubmit={(e) => e.preventDefault()}>
-                      <input required type="email" placeholder={lang === 'vi' ? "Email của bạn" : "Email address"} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-l-lg text-white placeholder:text-white/60 text-xs focus:outline-none focus:border-white/50" />
-                      <button type="submit" className="bg-white text-[#00687A] px-5 py-3 rounded-r-lg font-bold text-xs uppercase hover:bg-white/90 transition border border-white whitespace-nowrap">
-                         {lang === 'vi' ? 'Gửi' : 'Join'}
-                      </button>
+                    <form className="flex w-full shadow-md lg:max-w-xs relative flex-col gap-2" onSubmit={handleNewsletterSubmit}>
+                      <div className="flex w-full relative">
+                        <input 
+                          required 
+                          type="email" 
+                          value={newsletterEmail}
+                          onChange={(e) => setNewsletterEmail(e.target.value)}
+                          disabled={newsletterStatus === 'loading'}
+                          placeholder={lang === 'vi' ? "Email của bạn" : "Email address"} 
+                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-l-lg text-white placeholder:text-white/60 text-xs focus:outline-none focus:border-white/50 disabled:opacity-50" 
+                        />
+                        <button 
+                          type="submit" 
+                          disabled={newsletterStatus === 'loading'}
+                          className="bg-white text-[#00687A] px-5 py-3 rounded-r-lg font-bold text-xs uppercase hover:bg-white/90 transition border border-white whitespace-nowrap disabled:opacity-50"
+                        >
+                           {newsletterStatus === 'loading' ? (lang === 'vi' ? 'Đang gửi...' : 'Sending...') : (lang === 'vi' ? 'Gửi' : 'Join')}
+                        </button>
+                      </div>
+                      {newsletterMsg && (
+                        <div className={`text-xs ${newsletterStatus === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {newsletterMsg}
+                        </div>
+                      )}
                     </form>
                  </div>
               </div>

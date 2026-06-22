@@ -14,17 +14,35 @@ export const ContactUs: React.FC<ContactUsProps> = ({ lang }) => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.message) {
       return;
     }
-    setIsSubmitted(true);
-    // Auto-reset submission alert after 4 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({ fullName: '', email: '', subject: '', message: '' });
-    }, 4000);
+    
+    setIsSubmitting(true);
+    
+    try {
+      await fetch('/api/contact-us', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      setIsSubmitted(true);
+      // Auto-reset submission alert after 4 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({ fullName: '', email: '', subject: '', message: '' });
+      }, 4000);
+    } catch (error) {
+      console.error("Failed to send message", error);
+      alert(lang === 'vi' ? 'Lỗi gửi tin nhắn, vui lòng thử lại sau.' : 'Error sending message, please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -200,10 +218,15 @@ export const ContactUs: React.FC<ContactUsProps> = ({ lang }) => {
               {/* Submit button */}
               <button
                 type="submit"
-                className="w-full py-4.5 bg-[#00687A] text-white hover:bg-[#E28C9A] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 text-xs md:text-sm font-black uppercase tracking-wider shadow-sm hover:scale-[1.01] cursor-pointer font-coheading"
+                disabled={isSubmitting}
+                className="w-full py-4.5 bg-[#00687A] text-white hover:bg-[#E28C9A] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 text-xs md:text-sm font-black uppercase tracking-wider shadow-sm hover:scale-[1.01] cursor-pointer font-coheading disabled:opacity-75 disabled:cursor-wait"
               >
                 <Send className="w-4 h-4" />
-                <span>{lang === 'vi' ? 'Gửi tin nhắn' : 'Send Message'}</span>
+                <span>
+                  {isSubmitting 
+                    ? (lang === 'vi' ? 'Đang gửi...' : 'Sending...') 
+                    : (lang === 'vi' ? 'Gửi tin nhắn' : 'Send Message')}
+                </span>
               </button>
 
             </form>
