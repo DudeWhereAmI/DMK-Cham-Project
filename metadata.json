@@ -1,0 +1,6 @@
+{
+  "name": "Chạm - Personal Care",
+  "description": "Bespoke, premium customizable personal care accessories inspired by the Five Elements and traditional Eastern legends.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

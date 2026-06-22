@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cormorant Garamond", Georgia, ui-serif, serif;
+  --font-serif: "Cormorant Garamond", Georgia, ui-serif, serif;
+  --font-script: "Pinyon Script", cursive;
+  --font-coheading: "Outfit", "Be Vietnam Pro", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.font-script {
+  font-family: "Pinyon Script", cursive;
+}
+
+.font-coheading {
+  font-family: "Outfit", "Be Vietnam Pro", sans-serif;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom iridescent and gloss layers for Chạm luxury visualizer */
+.radial-gradient-pearl {
+  background-image: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 225, 225, 0.5) 40%, rgba(180, 240, 230, 0.4) 70%, rgba(220, 210, 255, 0.4) 100%);
+  background-blend-mode: overlay;
+}
+
+.linear-gradient-shimmer {
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,240,245,0.7) 25%, rgba(224,255,255,0.6) 50%, rgba(255,228,225,0.7) 75%, rgba(230,230,250,0.8) 100%);
+  background-blend-mode: overlay;
+}
+
+/* 3D Embossed lettering styles */
+.text-embossed-3d {
+  text-shadow: 
+    0 1px 0 #cccccc,
+    0 2px 0 #c5c5c5,
+    0 3px 0 #bbbbbb,
+    0 4px 0 #b3b3b3,
+    0 5px 0 #aaaaaa,
+    0 6px 1px rgba(0,0,0,0.1),
+    0 0 5px rgba(0,0,0,0.1),
+    0 1px 3px rgba(0,0,0,0.3),
+    0 3px 5px rgba(0,0,0,0.2),
+    0 5px 10px rgba(0,0,0,0.25),
+    0 10px 10px rgba(0,0,0,0.2),
+    0 20px 20px rgba(0,0,0,0.15);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+/* Soft, clean, high-end organic brand feel */
+body {
+  background-color: #FBF5F2; /* Creamy sand/Warm white background */
+  color: #00687A; /* Primary brand color teal */
+  font-family: var(--font-serif); /* Using Cormorant Garamond as base for literary feel */
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FBF5F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #E28C9A;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 104, 122, 0.15);
+  border-radius: 10px;
+}
+
+/* Animation for customizer changes */
+@keyframes shimmerPulse {
+  0% { opacity: 0.82; transform: scale(1); }
+  50% { opacity: 0.95; transform: scale(1.015); }
+  100% { opacity: 0.82; transform: scale(1); }
+}
+
+.animate-shimmer-pulse {
+  animation: shimmerPulse 4s infinite ease-in-out;
+}

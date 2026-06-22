@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "User's purchase history",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "totalPrice": { "type": "number" },
+        "status": { "type": "string" },
+        "items": { "type": "array" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["userId", "totalPrice", "status", "items", "createdAt"]
+    }
+  },
+  "firestore": {
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Store user orders"
+    }
+  }
+}

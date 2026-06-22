@@ -1,0 +1,145 @@
+<svg viewBox="0 0 500 500" width="500" height="500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Soft product shadow -->
+    <filter id="productShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#5C4D4A" flood-opacity="0.18" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#5C4D4A" flood-opacity="0.1" />
+    </filter>
+
+    <!-- Hinge metallic gradient -->
+    <linearGradient id="goldHinge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF5E5" />
+      <stop offset="30%" stop-color="#EADAB7" />
+      <stop offset="70%" stop-color="#D3C29E" />
+      <stop offset="100%" stop-color="#A59473" />
+    </linearGradient>
+
+    <!-- Real-life Opalescent Marbling Shimmer Gradient -->
+    <linearGradient id="opalescentBase" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#FFF" />
+      <stop offset="20%" stop-color="#FFFDF7" />
+      <stop offset="40%" stop-color="#F2DFDC" /> <!-- Rose quartz shift -->
+      <stop offset="60%" stop-color="#DAEAF2" /> <!-- Aqua/mother-of-pearl shift -->
+      <stop offset="80%" stop-color="#FFFBF0" /> <!-- Cream shift -->
+      <stop offset="100%" stop-color="#EAE3DC" />
+    </linearGradient>
+
+    <!-- Soft radial gloss highlights -->
+    <radialGradient id="pearlShine" cx="30%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#FFF" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#FFF" stop-opacity="0.3" />
+      <stop offset="80%" stop-color="#E28C9A" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Translucent plastic gradient for teeth -->
+    <linearGradient id="teethGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#F2DFDC" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#EAE3DC" stop-opacity="0.6" />
+    </linearGradient>
+  </defs>
+
+  <!-- The Product Container Group -->
+  <g filter="url(#productShadow)" transform="translate(25, 25)">
+    <!-- 1. Gold Hinge Mechanism (Rear) -->
+    <g id="gold-spring" transform="translate(195, 80)">
+      <!-- Hinge bar -->
+      <rect x="0" y="20" width="60" height="12" rx="4" fill="url(#goldHinge)" stroke="#9F8B67" stroke-width="0.8" />
+      <rect x="5" y="10" width="10" height="20" rx="2" fill="url(#goldHinge)" />
+      <rect x="45" y="10" width="10" height="20" rx="2" fill="url(#goldHinge)" />
+      <!-- Coiled metal wire -->
+      <ellipse cx="30" cy="23" rx="14" ry="14" fill="none" stroke="url(#goldHinge)" stroke-width="4" stroke-dasharray="2 1.5" />
+      <!-- Spring tension tabs -->
+      <path d="M 21,12 L 21,32 H 18" stroke="url(#goldHinge)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+      <path d="M 39,12 L 39,32 H 42" stroke="url(#goldHinge)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    </g>
+
+    <!-- 2. Dual Interlocking Thick Teeth (Behind the front shell) -->
+    <g id="teeth" stroke="url(#teethGrad)" stroke-width="1.8" fill="url(#teethGrad)">
+      <!-- Left to Right Back Row Teeth -->
+      <path d="M 98,235 C 93,285 96,335 102,345 C 104,348 114,342 110,335 C 105,285 108,235 112,235 Z" opacity="0.9" />
+      <path d="M 148,245 C 143,295 146,345 152,355 C 154,358 164,352 160,345 C 155,295 158,245 162,245 Z" opacity="0.9" />
+      <path d="M 198,250 C 193,300 196,350 202,360 C 204,363 214,357 210,350 C 205,300 208,250 212,250 Z" opacity="0.9" />
+      <path d="M 248,250 C 243,300 246,350 252,360 C 254,363 264,357 260,350 C 255,300 258,250 262,250 Z" opacity="0.9" />
+      <path d="M 298,248 C 293,298 296,348 302,358 C 304,361 314,355 310,348 C 305,298 308,248 312,248 Z" opacity="0.9" />
+      <path d="M 348,240 C 343,290 346,340 352,350 C 354,353 364,347 360,340 C 355,290 358,240 362,240 Z" opacity="0.9" />
+
+      <!-- Left to Right Front Row Teeth (Interlocking, slightly shifted) -->
+      <path d="M 123,240 C 128,290 125,335 120,340 C 117,344 127,351 131,343 C 137,290 134,240 131,240 Z" opacity="0.95" />
+      <path d="M 173,248 C 178,298 175,343 170,348 C 167,352 177,359 181,351 C 187,298 184,248 181,248 Z" opacity="0.95" />
+      <path d="M 223,250 C 228,300 225,345 220,350 C 217,354 227,361 231,353 C 237,300 234,250 231,250 Z" opacity="0.95" />
+      <path d="M 273,250 C 278,300 275,345 270,350 C 267,354 277,361 281,353 C 287,300 284,250 281,250 Z" opacity="0.95" />
+      <path d="M 323,245 C 328,295 325,340 320,345 C 317,349 327,356 331,348 C 337,295 334,245 331,245 Z" opacity="0.95" />
+    </g>
+
+    <!-- 3. Real Photographic-Feeling Front Shell of Claw Clip -->
+    <!-- Curved organic double-loop body shape -->
+    <path 
+      d="M 105,240 
+         C 80,185 110,105 210,105 
+         C 220,105 225,110 230,110
+         C 235,110 240,105 250,105 
+         C 350,105 380,185 355,240 
+         C 340,270 300,285 245,282 
+         C 215,280 185,280 155,282
+         C 140,282 120,270 105,240 Z" 
+      fill="url(#opalescentBase)" 
+      stroke="#ECE3DB" 
+      stroke-width="1.5"
+    />
+
+    <!-- Multi-dimensional Pearlescent Shell Flakes Overlay (SVG textures) -->
+    <!-- Beautiful swirly layers to evoke the marbled quartz and MOP texture exactly as shown in the picture -->
+    <path d="M 120,225 C 100,180 120,135 180,135 C 150,150 140,190 120,225 Z" fill="#F4DCDC" opacity="0.65" style="mix-blend-mode: color-burn;" />
+    <path d="M 330,225 C 350,180 330,135 270,135 C 300,150 310,190 330,225 Z" fill="#DCEAF2" opacity="0.55" style="mix-blend-mode: multiply;" />
+    <path d="M 180,270 C 240,250 280,250 320,270 C 270,265 220,265 180,270 Z" fill="#FFEFC7" opacity="0.45" style="mix-blend-mode: soft-light;" />
+    
+    <!-- Shimmering fine glitter flakes -->
+    <g fill="#FFF" opacity="0.8">
+      <!-- Cluster of glitters on the surface -->
+      <polygon points="140,180 143,184 140,188 137,184" />
+      <polygon points="180,150 181.5,153 180,156 178.5,153" fill="#EADAB7" />
+      <polygon points="310,160 312,163 310,166 308,163" />
+      <polygon points="330,200 333,204 330,208 327,204" fill="#68B2A0" />
+      <polygon points="210,260 212,263 210,266 208,263" />
+      <polygon points="270,255 272.5,258 270,261 267.5,258" />
+      <!-- Tiny sparkling dots -->
+      <circle cx="120" cy="160" r="1.5" />
+      <circle cx="160" cy="210" r="1" />
+      <circle cx="210" cy="140" r="1.8" fill="#FFF8E0" />
+      <circle cx="280" cy="130" r="1.2" />
+      <circle cx="340" cy="170" r="2" />
+      <circle cx="310" cy="230" r="1" />
+      <circle cx="250" cy="200" r="1.5" />
+      <circle cx="150" cy="240" r="1.8" />
+    </g>
+
+    <!-- Front handle finger-loops -->
+    <path d="M 195,108 C 190,85 210,65 230,65 C 240,65 245,72 250,72 C 255,72 260,65 270,65 C 290,65 310,85 305,108 Z" fill="url(#opalescentBase)" stroke="#ECE3DB" stroke-width="1.2" />
+    <!-- Finger loop highlight gloss -->
+    <path d="M 205,98 C 200,82 212,72 230,72 C 240,72 245,76 250,76" fill="none" stroke="#FFF" stroke-width="1.6" opacity="0.75" stroke-linecap="round" />
+    <path d="M 295,98 C 300,82 288,72 270,72 C 260,72 255,76 250,76" fill="none" stroke="#FFF" stroke-width="1.6" opacity="0.75" stroke-linecap="round" />
+
+    <!-- 4. Glossy 3D Light Reflections & Specular Highlights -->
+    <!-- Large sweeping wet-looking sheen highlight on the top ridge -->
+    <path 
+      d="M 115,225 
+         C 100,195 125,120 215,120 
+         C 220,120 225,125 230,125
+         C 230,125 235,120 240,120
+         C 315,120 350,195 345,225
+         C 342,210 312,130 240,130
+         C 235,130 230,128 225,128
+         C 220,128 215,130 210,130
+         C 138,130 118,210 115,225 Z" 
+      fill="url(#pearlShine)" 
+      opacity="0.9" 
+    />
+    
+    <!-- White edge pin highlights -->
+    <path d="M 110,215 C 95,175 118,125 185,125" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+    <path d="M 350,215 C 365,175 342,125 275,125" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.75" />
+    <path d="M 155,275 C 205,271 255,271 305,275" fill="none" stroke="#FFFFFF" stroke-width="2.2" opacity="0.65" stroke-linecap="round" />
+  </g>
+</svg>
