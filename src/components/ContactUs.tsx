@@ -67,8 +67,8 @@ export const ContactUs: React.FC<ContactUsProps> = ({ lang }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Left column: 2 info cards (Email and Instagram) */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Left column: 3 info cards (Email, Facebook, TikTok) */}
+        <div className="lg:col-span-5 space-y-4">
           
           {/* Card 1: Email contact */}
           <div className="bg-white border border-[#E28C9A]/15 rounded-3xl p-6 md:p-8 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
@@ -89,47 +89,58 @@ export const ContactUs: React.FC<ContactUsProps> = ({ lang }) => {
               </div>
               <div className="pt-2">
                 <a 
-                  href="mailto:cham.accessoriesvietnam@gmail.com" 
+                  href="mailto:cham.elements@gmail.com" 
                   className="text-indigo-600 hover:text-[#E28C9A] transition font-bold text-xs md:text-sm tracking-wide break-all"
                 >
-                  cham.accessoriesvietnam@gmail.com
+                  cham.elements@gmail.com
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Instagram */}
-          <div className="bg-white border border-[#E28C9A]/15 rounded-3xl p-6 md:p-8 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-[#FBF5F2] rounded-full -translate-y-10 translate-x-10 -z-0 group-hover:scale-110 transition-transform"></div>
-            <div className="relative z-10 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-pink-600 shadow-sm">
-                <Instagram className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-serif text-base md:text-lg font-black text-[#00687A] tracking-tight">
-                  {lang === 'vi' ? 'Mạng xã hội' : 'Social networks'}
-                </h3>
-                <p className="text-xs text-slate-450 md:text-sm text-slate-500 leading-relaxed font-serif">
-                  {lang === 'vi' 
-                    ? 'Follow tụi mình để không bỏ lỡ các mẫu thiết kế mới độc quyền nhé!' 
-                    : 'Follow us so you don\'t miss any newly dropped exclusive designs!'}
-                </p>
-              </div>
-              <div className="pt-2">
-                <a 
-                  href="https://instagram.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-pink-600 hover:text-[#E28C9A] transition font-bold text-xs md:text-sm tracking-wide"
-                >
-                  @cham.accessoriesvietnam
-                </a>
-              </div>
+          {/* Card 2: Facebook */}
+          <div className="bg-white rounded-3xl hover:shadow-md transition-all duration-300 overflow-hidden flex flex-row group shadow-xs border border-[#E28C9A]/15 p-5 md:p-6">
+            {/* Content */}
+            <div className="w-full flex items-center bg-white">
+              <a 
+                href="https://www.facebook.com/profile.php?id=61591049410705" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 w-full group/link"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-2xl bg-[#00687A]/10 flex items-center justify-center text-[#00687A] group-hover/link:scale-110 transition-transform shadow-xs border border-[#00687A]/20">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="font-serif text-sm md:text-base font-black text-[#00687A] tracking-tight">Facebook</span>
+                  <span className="text-[#00687A] hover:text-[#E28C9A] transition font-bold text-xs md:text-sm tracking-wide line-clamp-1 break-all">@cham.elements</span>
+                </div>
+              </a>
             </div>
           </div>
 
+          {/* Card 3: TikTok */}
+          <div className="bg-white rounded-3xl hover:shadow-md transition-all duration-300 overflow-hidden flex flex-row group shadow-xs border border-[#E28C9A]/15 p-5 md:p-6">
+            {/* Content */}
+            <div className="w-full flex items-center bg-white">
+              <a 
+                href="https://www.tiktok.com/@cham.elements?_r=1&_t=ZS-97WdJdLmO6H" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 w-full group/link"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-2xl bg-[#E28C9A]/10 flex items-center justify-center text-[#E28C9A] group-hover/link:scale-110 transition-transform shadow-xs border border-[#E28C9A]/20">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.46-.23-2.61.88-5.26 2.87-6.87 1.4-.95 3.12-1.36 4.79-1.12.02 1.25-.01 2.49.02 3.73-.78-.1-1.57-.1-2.32.18-.75.29-1.35.88-1.63 1.63-.3.8-.26 1.72.16 2.49.46.85 1.34 1.45 2.3 1.51 1.4.11 2.8-.57 3.51-1.74.37-.62.59-1.35.59-2.09V.02h4.52z"/></svg>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="font-serif text-sm md:text-base font-black text-[#00687A] tracking-tight">TikTok</span>
+                  <span className="text-[#E28C9A] hover:text-[#00687A] transition font-bold text-xs md:text-sm tracking-wide line-clamp-1 break-all">@cham.elements</span>
+                </div>
+              </a>
+            </div>
+          </div>
         </div>
-
+      
         {/* Right column: Large Message Form */}
         <div className="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xs relative">
           

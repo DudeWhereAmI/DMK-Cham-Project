@@ -1,0 +1,153 @@
+267:export const CHARMS: CharmItem[] = [
+268-  // Zodiac Guardians
+269-  {
+270-    id: 'zodiac-kim',
+271-    name: 'White Tiger Moon',
+272-    vietnameseName: 'Bạch Hổ (Kim)',
+273-    category: 'zodiac',
+274-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Kim.png',
+275-    priceModifier: 10000,
+276-    element: 'KIM'
+277-  },
+278-  {
+279-    id: 'zodiac-moc',
+280-    name: 'Green Dragon Cloud',
+281-    vietnameseName: 'Thanh Long (Mộc)',
+282-    category: 'zodiac',
+283-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20M%E1%BB%99c.png',
+284-    priceModifier: 10000,
+285-    element: 'MOC'
+286-  },
+287-  {
+288-    id: 'zodiac-thuy',
+289-    name: 'Starry Blue Whale',
+290-    vietnameseName: 'Huyền Vũ - Cá Voi (Thủy)',
+291-    category: 'zodiac',
+292-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Thu%E1%BB%B7.png',
+293-    priceModifier: 10000,
+294-    element: 'THUY'
+295-  },
+296-  {
+297-    id: 'zodiac-hoa',
+298-    name: 'Red Phoenix Flame',
+299-    vietnameseName: 'Chu Tước (Hỏa)',
+300-    category: 'zodiac',
+301-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Ho%E1%BA%A3.png',
+302-    priceModifier: 10000,
+303-    element: 'HOA'
+304-  },
+305-  {
+306-    id: 'zodiac-tho',
+307-    name: 'Yellow Qilin Spark',
+308-    vietnameseName: 'Kỳ Lân (Thổ)',
+309-    category: 'zodiac',
+310-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Th%E1%BB%95.png',
+311-    priceModifier: 10000,
+312-    element: 'THO'
+313-  },
+314-  // Nơ trang trí
+315-  // Small Bows (Nơ nhỏ) - Dùng cho kẹp
+316-  {
+317-    id: 'bow-small-1-pink',
+318-    name: 'Pink Small Bow 1',
+319-    vietnameseName: 'Nơ Nhỏ 1 hồng',
+320-    category: 'bow-small',
+321-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20Nh%E1%BB%8F%201%20h%E1%BB%93ng%20-%20D%C3%B9ng%20cho%20k%E1%BA%B9p.png',
+322-    priceModifier: 5000
+323-  },
+324-  {
+325-    id: 'bow-small-1-white',
+326-    name: 'White Small Bow 1',
+327-    vietnameseName: 'Nơ Nhỏ 1 trắng',
+328-    category: 'bow-small',
+329-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20Nh%E1%BB%8F%201%20tr%E1%BA%AFng%20-%20D%C3%B9ng%20cho%20k%E1%BA%B9p.png',
+330-    priceModifier: 5000
+331-  },
+332-  {
+333-    id: 'bow-small-2-pink',
+334-    name: 'Pink Small Bow 2',
+335-    vietnameseName: 'Nơ Nhỏ 2 hồng',
+336-    category: 'bow-small',
+337-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20Nh%E1%BB%8F%202%20h%E1%BB%93ng%20-%20D%C3%B9ng%20cho%20k%E1%BA%B9p.png',
+338-    priceModifier: 5000
+339-  },
+340-  {
+341-    id: 'bow-small-2-white',
+342-    name: 'White Small Bow 2',
+343-    vietnameseName: 'Nơ Nhỏ 2 trắng',
+344-    category: 'bow-small',
+345-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20Nh%E1%BB%8F%202%20tr%E1%BA%AFng%20-%20D%C3%B9ng%20cho%20k%E1%BA%B9p.png',
+346-    priceModifier: 5000
+347-  },
+348-  // Big Bows (Nơ to) - Dùng cho gương
+349-  {
+350-    id: 'bow-big-1-pink',
+351-    name: 'Pink Big Bow 1',
+352-    vietnameseName: 'Nơ To 1 hồng',
+353-    category: 'bow-big',
+354-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20To%201%20h%E1%BB%93ng%20-%20D%C3%B9ng%20cho%20g%C6%B0%C6%A1ng.png',
+355-    priceModifier: 10000
+356-  },
+357-  {
+358-    id: 'bow-big-1-white',
+359-    name: 'White Big Bow 1',
+360-    vietnameseName: 'Nơ To 1 trắng',
+361-    category: 'bow-big',
+362-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20To%201%20tr%E1%BA%AFng%20-%20D%C3%B9ng%20cho%20g%C6%B0%C6%A1ng.png',
+363-    priceModifier: 10000
+364-  },
+365-  {
+366-    id: 'bow-big-2-pink',
+367-    name: 'Pink Big Bow 2',
+368-    vietnameseName: 'Nơ To 2 hồng',
+369-    category: 'bow-big',
+370-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20To%202%20h%E1%BB%93ng%20-%20D%C3%B9ng%20cho%20g%C6%B0%C6%A1ng.png',
+371-    priceModifier: 10000
+372-  },
+373-  {
+374-    id: 'bow-big-2-white',
+375-    name: 'White Big Bow 2',
+376-    vietnameseName: 'Nơ To 2 trắng',
+377-    category: 'bow-big',
+378-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/N%C6%A1%20To%202%20tr%E1%BA%AFng%20-%20D%C3%B9ng%20cho%20g%C6%B0%C6%A1ng.png',
+379-    priceModifier: 10000
+380-  },
+381-  // Sticker dán (Stickers)
+382-  {
+383-    id: 'sticker-sparkle-silver',
+384-    name: 'Sparkle Sticker Silver',
+385-    vietnameseName: 'Sticker dán Lấp lánh - Bạc',
+386-    category: 'sticker-deco',
+387-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/Sticker%20d%C3%A1n%20L%E1%BA%A5p%20l%C3%A1nh%20-%20B%E1%BA%A1c.png',
+388-    priceModifier: 3000
+389-  },
+390-  {
+391-    id: 'sticker-sparkle-gold',
+392-    name: 'Sparkle Sticker Gold',
+393-    vietnameseName: 'Sticker dán Lấp lánh - Vàng',
+394-    category: 'sticker-deco',
+395-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/Sticker%20d%C3%A1n%20L%E1%BA%A5p%20l%C3%A1nh%20-%20V%C3%A0ng.png',
+396-    priceModifier: 3000
+397-  },
+398-  {
+399-    id: 'sticker-moon-silver',
+400-    name: 'Moon Sticker Silver',
+401-    vietnameseName: 'Sticker dán mặt trăng - Bạc',
+402-    category: 'sticker-deco',
+403-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/Sticker%20d%C3%A1n%20m%E1%BA%B7t%20tr%C4%83ng%20-%20B%E1%BA%A1c.png',
+404-    priceModifier: 3000
+405-  },
+406-  {
+407-    id: 'sticker-moon-gold',
+408-    name: 'Moon Sticker Gold',
+409-    vietnameseName: 'Sticker dán mặt trăng - Vàng',
+410-    category: 'sticker-deco',
+411-    imageUrl: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/ELEMENT%20TRANG%20TR%C3%8D/Sticker%20d%C3%A1n%20m%E1%BA%B7t%20tr%C4%83ng%20-%20V%C3%A0ng.png',
+412-    priceModifier: 3000
+413-  }
+414-];
+415-
+416-export const LETTERING_PRICING = {
+417-  sticker: 3000,    // 'Chữ dán'
+418-  embossed: 5000,  // 'Chữ nổi' (3D)
+419-};

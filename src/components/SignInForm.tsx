@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { PngLogoCircular } from './PngLogo';
 import { auth } from '../lib/firebase';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
 
 interface SignInFormProps {
   lang: 'vi' | 'en';
@@ -12,6 +12,25 @@ interface SignInFormProps {
 
 export const SignInForm: React.FC<SignInFormProps> = ({ lang, onNavigateRegister, onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setIsSubmitting(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      onLoginSuccess();
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Login failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -39,8 +58,14 @@ export const SignInForm: React.FC<SignInFormProps> = ({ lang, onNavigateRegister
         </p>
       </div>
 
-      <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-5" onSubmit={handleEmailLogin}>
         
+        {errorMsg && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium">
+            {errorMsg}
+          </div>
+        )}
+
         {/* Email Input */}
         <div className="flex flex-col gap-1.5 relative group/input">
           <label className="font-bold text-[#00687A] text-sm tracking-wide ml-1">
@@ -51,6 +76,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({ lang, onNavigateRegister
               type="text" 
               autoComplete="username"
               className={inputStyle}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
         </div>
@@ -65,6 +93,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({ lang, onNavigateRegister
               type={showPassword ? "text" : "password"} 
               autoComplete="current-password"
               className={`${inputStyle} pr-12`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <button 
               type="button" 
@@ -85,9 +116,10 @@ export const SignInForm: React.FC<SignInFormProps> = ({ lang, onNavigateRegister
         <div className="pt-2">
           <button 
             type="submit"
-            className="w-full bg-[#8A1538] hover:bg-[#00687A] text-white font-bold text-sm uppercase tracking-wider py-4 rounded-full transition-colors shadow-md hover:shadow-lg"
+            disabled={isSubmitting}
+            className="w-full bg-[#8A1538] hover:bg-[#00687A] text-white font-bold text-sm uppercase tracking-wider py-4 rounded-full transition-colors shadow-md hover:shadow-lg disabled:opacity-70"
           >
-            {lang === 'vi' ? 'ĐĂNG NHẬP' : 'SIGN IN'}
+            {isSubmitting ? (lang === 'vi' ? 'ĐANG ĐĂNG NHẬP...' : 'SIGNING IN...') : (lang === 'vi' ? 'ĐĂNG NHẬP' : 'SIGN IN')}
           </button>
         </div>
 

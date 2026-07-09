@@ -5,7 +5,7 @@ interface ElementSubpageProps {
   elementId: string;
   lang: 'vi' | 'en';
   onNavigateBack: () => void;
-  onEnterShop: () => void;
+  onEnterShop: (productId: string) => void;
 }
 
 const elementsData = [
@@ -15,13 +15,13 @@ const elementsData = [
     nameEn: 'Opaline White (Metal)',
     descVi: 'Đại diện cho sự rõ ràng, sắc bén và tinh tế tối giản.',
     descEn: 'Represents pristine clarity, sharpness, and minimalist sophistication.',
-    guardianImg: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LINH%20V%E1%BA%ACT/kim.png',
+    guardianImg: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Kim.png',
     slides: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/kim%20.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/KIM.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/kim%20.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/KIM.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/1.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%202%20k%E1%BA%B9p%20pha%20l%C3%AA%20g%E1%BA%AFn%20ch%E1%BB%AF%20n%E1%BB%95i%20tr%E1%BA%AFng.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/KIM.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/kim%20.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/KIM.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Kim.png',
     ],
     bgColor: 'bg-[#F2F4F8]',
     textColor: 'text-[#00687A]',
@@ -29,7 +29,7 @@ const elementsData = [
       title: "Bộ chất liệu tương sinh đề xuất",
       items: [
         { name: "Kẹp Pha Lê (Crystal)", desc: "Trong suốt, lấp lánh và thuần khiết. Biểu tượng cho một nguồn năng lượng sạch, giúp thanh lọc tâm trí và mang lại sự sáng suốt phù hợp với Mệnh Kim." },
-        { name: "Kẹp Xà Cừ (Mother of Pearl)", desc: "Mang nét đẹp cổ điển, sang trọng bắt sáng thanh lịch, như kim loại quý. Phù hợp cho những ngày bạn cần sự điềm tĩnh và thu hút may mắn." }
+        { name: "Kẹp Ánh Mây (Mother of Pearl)", desc: "Mang nét đẹp cổ điển, sang trọng bắt sáng thanh lịch, như kim loại quý. Phù hợp cho những ngày bạn cần sự điềm tĩnh và thu hút may mắn." }
       ],
       limited: "Để phá cách, The Harmony chuyển màu linh hoạt giúp Mệnh Kim giao thoa vạn vật, tỏa sáng vượt qua ranh giới khi bước ra ánh sáng."
     },
@@ -48,13 +48,13 @@ const elementsData = [
     nameEn: 'Sage Green (Wood)',
     descVi: 'Năng lượng của sự sinh trưởng, chữa lành và khởi đầu tươi mới.',
     descEn: 'The energy of growth, holistic healing, and fresh beginnings.',
-    guardianImg: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LINH%20V%E1%BA%ACT/m%E1%BB%99c.png',
+    guardianImg: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@e082a9a3f88bde1ea5af5f49770de1af5052fa08/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20M%E1%BB%99c.png',
     slides: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/m%E1%BB%99c.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/m%E1%BB%99c%20.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/m%E1%BB%99c.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/m%E1%BB%99c.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-28.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%202%20k%E1%BA%B9p%20pha%20l%C3%AA%20g%E1%BA%AFn%20ch%E1%BB%AF%20n%E1%BB%95i%20tr%E1%BA%AFng.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/m%E1%BB%99c%20.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/m%E1%BB%99c.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/m%E1%BB%99c.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Thu%E1%BB%B7.png',
     ],
     bgColor: 'bg-[#E3F2CE]/30',
     textColor: 'text-[#5B7536]',
@@ -81,14 +81,14 @@ const elementsData = [
     nameEn: 'Ocean Aquamarine (Water)',
     descVi: 'Đại diện cho sự sâu sắc, trực giác nhạy bén và dòng chảy hanh thông.',
     descEn: 'Represents profound depth, keen intuition, and a prosperous flow.',
-    guardianImg: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LINH%20V%E1%BA%ACT/thu%E1%BB%B7%20.png',
+    guardianImg: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Thu%E1%BB%B7.png',
     slides: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/DMK%20%20BRAND%20ELEMENT%20-48.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/thu%E1%BB%B7.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/thu%E1%BB%B7.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/thu%E1%BB%B7.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/thu%E1%BB%B7.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-24.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%202%20k%E1%BA%B9p%20pha%20l%C3%AA%20g%E1%BA%AFn%20ch%E1%BB%AF%20n%E1%BB%95i%20tr%E1%BA%AFng.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/thu%E1%BB%B7.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/thu%E1%BB%B7.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/thu%E1%BB%B7.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/thu%E1%BB%B7.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Kim.png',
     ],
     bgColor: 'bg-[#D1ECFC]/30',
     textColor: 'text-[#2A658A]',
@@ -115,13 +115,13 @@ const elementsData = [
     nameEn: 'Warm Rose (Fire)',
     descVi: 'Đánh thức ngọn lửa đam mê, sự tự tin và sức hút nổi bật.',
     descEn: 'Awakens the flame of passion, self-confidence, and striking charisma.',
-    guardianImg: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LINH%20V%E1%BA%ACT/ho%E1%BA%A3.png',
+    guardianImg: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Ho%E1%BA%A3.png',
     slides: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/ho%E1%BA%A3.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/ho%E1%BA%A3.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/ho%E1%BA%A3.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/ho%E1%BA%A3.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-25.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%202%20k%E1%BA%B9p%20pha%20l%C3%AA%20g%E1%BA%AFn%20ch%E1%BB%AF%20n%E1%BB%95i%20tr%E1%BA%AFng.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/ho%E1%BA%A3.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/ho%E1%BA%A3.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/ho%E1%BA%A3.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Ho%E1%BA%A3.png',
     ],
     bgColor: 'bg-[#FADBDC]/30',
     textColor: 'text-[#A8323E]',
@@ -129,7 +129,7 @@ const elementsData = [
       title: "Bộ chất liệu tương sinh đề xuất",
       items: [
         { name: "Kẹp Limited 'The Harmony'", desc: "Là chân ái của hệ Hỏa. Thiết kế chỉ tỏa sáng rực rỡ và chuyển hóa đa tầng nhất khi đón đủ ánh nắng mặt trời, nạp hỏa khí uy lực cho sự nhiệt huyết." },
-        { name: "Kẹp Xà Cừ (Mother of Pearl)", desc: "Mang nét đẹp cổ điển, đóng vai trò như tĩnh lại ngọn lửa quá mãnh liệt. Khuyên dùng cho những ngày Hỏa cần sự điềm tĩnh và bớt bốc đồng." }
+        { name: "Kẹp Ánh Mây (Mother of Pearl)", desc: "Mang nét đẹp cổ điển, đóng vai trò như tĩnh lại ngọn lửa quá mãnh liệt. Khuyên dùng cho những ngày Hỏa cần sự điềm tĩnh và bớt bốc đồng." }
       ],
       limited: "Bạn là ngọn lửa, và kẹp The Harmony là tuyên ngôn khi bạn can đảm vươn ra khỏi rập khuôn, chiếu sáng rực rỡ con đường riêng của chính mình."
     },
@@ -148,20 +148,20 @@ const elementsData = [
     nameEn: 'Champagne Sand (Earth)',
     descVi: 'Mang lại cảm giác vững chãi, bình yên, là bệ phóng cho sự an tâm.',
     descEn: 'Brings a sense of grounding and peace, serving as a foundation for security.',
-    guardianImg: 'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LINH%20V%E1%BA%ACT/th%E1%BB%95.png',
+    guardianImg: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/LINH%20V%E1%BA%ACT/Linh%20v%E1%BA%ADt%20Th%E1%BB%95.png',
     slides: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/th%E1%BB%95.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/th%E1%BB%95.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/th%E1%BB%95.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/th%E1%BB%95.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-27.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%202%20k%E1%BA%B9p%20%C3%A1nh%20m%C3%A2y%20g%E1%BA%AFn%20ch%E1%BB%AF%20d%C3%A1n%20v%C3%A0ng.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/G%C6%AF%C6%A0NG/th%E1%BB%95.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/th%E1%BB%95.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/th%E1%BB%95.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Ho%E1%BA%A3.png',
     ],
     bgColor: 'bg-[#F5EAD4]/50',
     textColor: 'text-[#8A6A2C]',
     materialsVi: {
       title: "Bộ chất liệu tương sinh đề xuất",
       items: [
-        { name: "Kẹp Xà Cừ (Mother of Pearl)", desc: "Sự thầm lặng mà toát lên sang trọng của xà cừ khắc họa chính xác bản chất vững chãi, bình yên của nền đất Thổ. Là bệ phóng hoàn hảo cho mọi điểm tựa." },
+        { name: "Kẹp Ánh Mây (Mother of Pearl)", desc: "Sự thầm lặng mà toát lên sang trọng của xà cừ khắc họa chính xác bản chất vững chãi, bình yên của nền đất Thổ. Là bệ phóng hoàn hảo cho mọi điểm tựa." },
         { name: "Kẹp Pha Lê (Crystal)", desc: "Phá bỏ đi sự khô khan của nền đất, một viên pha lê trong tinh khiết sẽ tạo nên vòng xoáy năng lượng mềm mại và sáng suốt hơn." }
       ],
       limited: "Kẹp The Harmony với tia đổi màu dưới ánh nắng (Hỏa sinh Thổ) được đề xuất cho Thổ trong những ngày cần cởi bỏ vùng an toàn, tỏa sáng."
@@ -178,8 +178,10 @@ const elementsData = [
 ];
 
 export const ElementSubpage: React.FC<ElementSubpageProps> = ({ elementId, lang, onNavigateBack, onEnterShop }) => {
-  const el = elementsData.find(e => e.id === elementId) || elementsData[0];
+  const rawEl = elementsData.find(e => e.id === elementId) || elementsData[0];
+  const el = { ...rawEl, slides: rawEl.slides?.slice(0, 3) };
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -187,164 +189,137 @@ export const ElementSubpage: React.FC<ElementSubpageProps> = ({ elementId, lang,
   }, [elementId]);
 
   useEffect(() => {
-    if (el.slides && el.slides.length > 0) {
+    if (el.slides && el.slides.length > 0 && !isHovered) {
       const interval = setInterval(() => {
         setActiveSlideIndex((prev) => (prev + 1) % el.slides.length);
-      }, 3000);
+      }, 6000);
       return () => clearInterval(interval);
     }
-  }, [el]);
+  }, [el, isHovered]);
+
+  const handleEnterShop = () => {
+    const productMapping = ['kep-1', 'guong', 'kep-2'];
+    const selectedProductId = productMapping[activeSlideIndex] || 'kep-1';
+    onEnterShop(selectedProductId);
+  };
+
+  // Extract just the short name (e.g., "KIM", "MỘC") for the large background text
+  const bgText = lang === 'vi' 
+    ? (el.id === 'kim' ? 'KIM' : el.id === 'moc' ? 'MỘC' : el.id === 'thuy' ? 'THỦY' : el.id === 'hoa' ? 'HỎA' : 'THỔ')
+    : el.id.toUpperCase();
 
   return (
-    <div className={`min-h-[80vh] rounded-[32px] overflow-hidden shadow-lg border border-[#00687A]/5 animate-fade-in ${el.bgColor} flex flex-col md:flex-row max-w-7xl mx-auto items-stretch`}>
-      {/* Left Content Area (Text) - Narrower */}
-      <div className="w-full md:w-[40%] flex shrink-0 flex-col justify-center p-8 md:p-16 space-y-8 relative z-10">
+    <div 
+      className={`relative min-h-[85vh] w-full rounded-[32px] overflow-hidden shadow-2xl animate-fade-in ${el.bgColor} flex flex-col items-center justify-center`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      
+      {/* Top Header / Navigation */}
+      <div className="absolute top-0 left-0 w-full p-8 flex justify-between items-center z-20">
         <button 
           onClick={onNavigateBack}
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00687A]/60 hover:text-[#00687A] transition-colors font-coheading mb-4"
+          className={`flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${el.textColor} hover:opacity-70 transition-opacity`}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
           {lang === 'vi' ? 'Quay lại' : 'Back'}
         </button>
+      </div>
 
-        <h1 className={`font-serif text-4xl md:text-5xl lg:text-6xl font-black tracking-tight ${el.textColor} leading-tight`}>
-          {lang === 'vi' ? el.nameVi : el.nameEn}
+      {/* HUGE Background Text (Layer 1) */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none">
+        <h1 
+          className="text-[20vw] font-black uppercase text-white/90 leading-none m-0 p-0 transform scale-y-125 tracking-tighter"
+          style={{ textShadow: '0 10px 30px rgba(0,0,0,0.05)' }}
+        >
+          {bgText}
         </h1>
+      </div>
 
-        <p className="font-serif text-lg md:text-xl xl:text-2xl text-slate-700 leading-relaxed max-w-xl text-justify">
+      {/* Central Image (Layer 2) */}
+      <div className="relative z-10 w-full max-w-[500px] aspect-square flex items-center justify-center mt-8 px-4">
+        {el.slides && el.slides.length > 0 ? (
+          <img 
+            src={el.slides[activeSlideIndex]} 
+            alt={el.nameEn} 
+            className="w-[90%] h-[90%] object-contain drop-shadow-2xl animate-float transition-opacity duration-500 mix-blend-multiply -translate-y-12 md:-translate-y-24 translate-x-12 md:translate-x-24"
+           referrerPolicy="no-referrer"  loading="lazy" />
+        ) : (
+          <img 
+            src={el.guardianImg} 
+            alt={el.nameEn} 
+            className="w-[75%] h-[75%] object-contain drop-shadow-2xl animate-float mix-blend-multiply -translate-y-12 md:-translate-y-24 translate-x-12 md:translate-x-24"
+           referrerPolicy="no-referrer"  loading="lazy" />
+        )}
+      </div>
+
+      {/* Bottom Left Content (Layer 3) */}
+      <div className="absolute bottom-12 left-12 max-w-sm z-20 hidden md:block">
+        <h2 className={`font-serif text-3xl md:text-5xl font-black tracking-tight ${el.textColor} leading-tight mb-4`}>
+          {lang === 'vi' ? el.nameVi : el.nameEn}
+        </h2>
+        <p className={`font-sans text-sm md:text-base ${el.textColor} opacity-90 leading-relaxed mb-6 font-medium`}>
           {lang === 'vi' ? el.descVi : el.descEn}
         </p>
+        <button 
+          onClick={handleEnterShop}
+          className="px-8 py-3 bg-white rounded-full text-[#00687A] font-bold text-sm uppercase tracking-widest shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+        >
+          {lang === 'vi' ? 'Xem Sản Phẩm' : 'See More'}
+        </button>
+      </div>
 
-        <div className="pt-6 border-t border-[#00687A]/10 mt-6 flex-1 overflow-y-auto max-h-[35vh] pr-2 custom-scrollbar">
-          {lang === 'vi' ? (
-            <div className="space-y-3 text-[11px] md:text-[13px] text-slate-700 font-serif leading-relaxed text-justify mb-6">
-              <h3 className="font-bold text-[#00687A] uppercase text-[11px] md:text-xs tracking-wider font-coheading">
-                {el.materialsVi?.title || "Bộ chất liệu tương sinh đề xuất"}
-              </h3>
-              <ul className="space-y-2">
-                {el.materialsVi?.items?.map((item: any, idx: number) => (
-                  <li key={idx}>
-                    <strong className="text-[#00687A]">{item.name}:</strong> {item.desc}
-                  </li>
-                ))}
-              </ul>
-              
-              {el.materialsVi?.limited && (
-                <>
-                  <h3 className="font-bold text-[#00687A] uppercase text-[11px] md:text-xs tracking-wider pt-2 border-t border-[#00687A]/10 mt-4 font-coheading flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Phiên bản giới hạn: "The Harmony"
-                  </h3>
-                  <div className="italic bg-white/40 p-2 md:p-3 rounded-xl border-l-[3px] border-[#00687A]/30 shadow-sm text-[11px] md:text-xs">
-                    &rarr; {el.materialsVi.limited}
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3 text-[11px] md:text-[13px] text-slate-700 font-serif leading-relaxed text-justify mb-6">
-              <h3 className="font-bold text-[#00687A] uppercase text-[11px] md:text-xs tracking-wider font-coheading">
-                {el.materialsEn?.title || "Recommended Synergistic Materials"}
-              </h3>
-              <ul className="space-y-2">
-                {el.materialsEn?.items?.map((item: any, idx: number) => (
-                  <li key={idx}>
-                    <strong className="text-[#00687A]">{item.name}:</strong> {item.desc}
-                  </li>
-                ))}
-              </ul>
-              
-              {el.materialsEn?.limited && (
-                <>
-                  <h3 className="font-bold text-[#00687A] uppercase text-[11px] md:text-xs tracking-wider pt-2 border-t border-[#00687A]/10 mt-4 font-coheading flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Limited Edition: "The Harmony"
-                  </h3>
-                  <div className="italic bg-white/40 p-2 md:p-3 rounded-xl border-l-[3px] border-[#00687A]/30 shadow-sm text-[11px] md:text-xs">
-                    &rarr; {el.materialsEn.limited}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+      {/* Bottom Right Controls / Info (Layer 3) */}
+      <div className="absolute bottom-12 right-12 flex-col items-end gap-4 z-20 hidden md:flex">
+        <div className="flex flex-col gap-3">
+          {el.slides && el.slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveSlideIndex(idx)}
+              className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                activeSlideIndex === idx 
+                  ? 'bg-white text-[#00687A] shadow-md scale-110' 
+                  : 'bg-white/40 text-white hover:bg-white/60 backdrop-blur-sm'
+              }`}
+            >
+              0{idx + 1}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Right Image Slider Area - Much larger */}
-      <div className="w-full md:w-[60%] flex shrink-0 relative group min-h-[400px] md:min-h-full">
-        {/* Ambient glow backdrop */}
-        <div className="absolute inset-0 bg-white/40 blur-[80px] rounded-full scale-75 group-hover:scale-110 transition-transform duration-1000 -z-10" />
-        
-        {el.slides && el.slides.length > 0 ? (
-          <div className="relative w-full h-full flex items-center justify-center p-8 bg-white/20 backdrop-blur-sm border-l border-white/40 overflow-hidden">
-             {/* Slider Area */}
-             <div className="absolute inset-0 group-hover:blur-md group-hover:opacity-30 transition-all duration-700 z-0">
-               {el.slides.map((slideUrl, idx) => {
-                 const isActive = idx === activeSlideIndex;
-                 const isMirror = slideUrl.includes('G%C6%AF%C6%A0NG');
-                 const isKimMirror = isMirror && el.id === 'kim';
-                 const isOtherMirror = isMirror && el.id !== 'kim';
+      {/* Mobile Layout Fallback */}
+      <div className="flex md:hidden flex-col items-center text-center p-6 mt-8 z-20 w-full relative bg-white/40 backdrop-blur-sm">
+        <h2 className={`font-serif text-3xl font-black tracking-tight ${el.textColor} leading-tight mb-2`}>
+          {lang === 'vi' ? el.nameVi : el.nameEn}
+        </h2>
+        <p className={`font-sans text-sm ${el.textColor} opacity-90 leading-relaxed mb-4`}>
+          {lang === 'vi' ? el.descVi : el.descEn}
+        </p>
+        <button 
+          onClick={handleEnterShop}
+          className="px-8 py-3 bg-white rounded-full text-[#00687A] font-bold text-sm uppercase tracking-widest shadow-lg"
+        >
+          {lang === 'vi' ? 'Xem Sản Phẩm' : 'See More'}
+        </button>
 
-                 return (
-                    <img 
-                      key={slideUrl}
-                      src={slideUrl} 
-                      referrerPolicy="no-referrer"
-                      alt={`Slide ${idx + 1}`}
-                      className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'} ${isKimMirror ? 'object-cover' : isOtherMirror ? 'object-contain scale-[0.85] md:scale-[0.75]' : 'object-contain scale-[0.8] md:scale-[0.7]'}`}
-                    />
-                 );
-               })}
-             </div>
-
-             {/* Hover Massive Mascot (Centered) */}
-             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-700 ease-out z-30 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 drop-shadow-2xl">
-               <img 
-                 src={el.guardianImg} 
-                 referrerPolicy="no-referrer"
-                 alt="Guardian Mascot Hover"
-                 className="w-[280px] md:w-[380px] lg:w-[480px] h-auto object-contain"
-               />
-               <button
-                 onClick={(e) => {
-                   e.stopPropagation();
-                   onEnterShop();
-                 }}
-                 className="mt-6 px-8 py-3 bg-white/90 backdrop-blur-md text-[#00687A] hover:bg-white font-coheading font-bold text-[11px] md:text-xs tracking-widest uppercase rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2 cursor-pointer pointer-events-auto border border-[#00687A]/30"
-               >
-                 <Sparkles className="w-4 h-4" />
-                 <span>{lang === 'vi' ? 'Thiết Kế Sản Phẩm Mệnh Này' : 'Customize This Element'}</span>
-               </button>
-             </div>
-
-             {/* Pagination Nodes Only - Button Removed For Normal State */}
-             <div className="absolute inset-x-0 bottom-6 flex flex-col items-center justify-end gap-5 z-20 transition-all duration-500 group-hover:opacity-0 group-hover:translate-y-4">
-               <div className="flex justify-center gap-2">
-                 {el.slides.map((_, idx) => (
-                   <button
-                     key={idx}
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       setActiveSlideIndex(idx);
-                     }}
-                     className={`h-1.5 rounded-full transition-all duration-300 pointer-events-auto ${idx === activeSlideIndex ? 'w-6 bg-[#00687A]' : 'w-2 bg-[#00687A]/20 hover:bg-[#00687A]/50'}`}
-                     aria-label={`Slide ${idx + 1}`}
-                   />
-                 ))}
-               </div>
-             </div>
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center p-12 relative bg-white/20 backdrop-blur-sm border-l border-white/40">
-            <img 
-              src={el.guardianImg} 
-              alt={lang === 'vi' ? el.nameVi : el.nameEn}
-              referrerPolicy="no-referrer"
-              className="relative z-10 w-full max-w-[400px] lg:max-w-[600px] h-auto object-contain drop-shadow-2xl transition-transform duration-1000 ease-out hover:scale-110 hover:-translate-y-4"
-            />
-          </div>
-        )}
+        <div className="flex gap-3 mt-6">
+          {el.slides && el.slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveSlideIndex(idx)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                activeSlideIndex === idx 
+                  ? 'bg-white text-[#00687A] shadow-md scale-110' 
+                  : 'bg-white/40 text-[#00687A] backdrop-blur-sm'
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
       </div>
+      
     </div>
   );
 };

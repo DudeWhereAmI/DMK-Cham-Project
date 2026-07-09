@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PngLogoCircular } from './PngLogo';
 import { Eye, EyeOff, ChevronLeft, Mail, Check } from 'lucide-react';
 import { auth } from '../lib/firebase';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 
 interface RegisterFormProps {
   lang: 'vi' | 'en';
@@ -16,6 +16,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
   const [step, setStep] = useState<FormStep>('selection');
   const [showPassword, setShowPassword] = useState(false);
   const [newsletter, setNewsletter] = useState(true);
+  
+  // Form State
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGoogleLogin = async () => {
     try {
@@ -27,15 +35,32 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
     }
   };
 
-  // Auto-advance mock verify
+  // Auto-advance verify
   useEffect(() => {
     if (step === 'verify') {
       const timer = setTimeout(() => {
         setStep('success');
-      }, 4000); // 4 seconds mock verification
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [step]);
+
+  const handleEmailRegistration = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setIsSubmitting(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}`.trim() });
+      await sendEmailVerification(userCredential.user);
+      setStep('verify');
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Registration failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const TopNav = ({ onBack, stepIndex }: { onBack: () => void, stepIndex: number }) => (
     <div className="flex items-center mb-8 relative w-full pt-2">
@@ -176,14 +201,26 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
             </p>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); setStep('verify'); }} className="flex flex-col gap-6">
+          <form onSubmit={handleEmailRegistration} className="flex flex-col gap-6">
+            
+            {errorMsg && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium">
+                {errorMsg}
+              </div>
+            )}
             
             <div className="flex flex-col gap-1.5 relative group/input">
               <label className="font-bold text-slate-900 text-sm tracking-wide ml-1">
                 {lang === 'vi' ? 'Tên' : 'First name'}
               </label>
               <div className="relative rounded-xl bg-slate-100 p-1">
-                <input type="text" required className={inputStyle} />
+                <input 
+                  type="text" 
+                  required 
+                  className={inputStyle}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
               </div>
             </div>
 
@@ -192,7 +229,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
                 {lang === 'vi' ? 'Họ' : 'Last name'}
               </label>
               <div className="relative rounded-xl bg-slate-100 p-1">
-                <input type="text" required className={inputStyle} />
+                <input 
+                  type="text" 
+                  required 
+                  className={inputStyle}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
               </div>
             </div>
 
@@ -201,7 +244,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
                 {lang === 'vi' ? 'Địa chỉ email' : 'Email address'}
               </label>
               <div className="relative rounded-xl bg-slate-100 p-1">
-                <input type="email" required className={inputStyle} />
+                <input 
+                  type="email" 
+                  required 
+                  className={inputStyle}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
             </div>
 
@@ -213,7 +262,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
                 <input 
                   type={showPassword ? "text" : "password"} 
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className={`${inputStyle} pr-12`}
+                  minLength={6}
                 />
                 <button 
                   type="button" 
@@ -238,9 +290,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
             <div className="pt-6 border-t border-slate-100 mt-2">
               <button 
                 type="submit"
-                className="w-full bg-[#8A1538] hover:bg-[#00687A] text-white font-bold text-sm uppercase tracking-widest py-4 rounded-full transition-colors shadow-md hover:shadow-lg"
+                disabled={isSubmitting}
+                className="w-full bg-[#8A1538] hover:bg-[#00687A] text-white font-bold text-sm uppercase tracking-widest py-4 rounded-full transition-colors shadow-md hover:shadow-lg disabled:opacity-70"
               >
-                {lang === 'vi' ? 'TIẾP TỤC' : 'CONTINUE'}
+                {isSubmitting ? (lang === 'vi' ? 'ĐANG XỬ LÝ...' : 'PROCESSING...') : (lang === 'vi' ? 'TIẾP TỤC' : 'CONTINUE')}
               </button>
             </div>
           </form>
@@ -256,7 +309,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ lang, onNavigateLogi
               {lang === 'vi' ? 'Chúng tôi đã gửi cho bạn một email' : "We've sent you an email"}
             </h2>
             <p className="text-slate-500 text-base max-w-sm mx-auto leading-relaxed">
-              {lang === 'vi' ? "Vui lòng nhấp vào liên kết trong email vừa được gửi dến 'example@gmail.com' để chúng tôi có thể xác minh email và hoàn tất đăng ký." : "Please click the link in the email we've just sent to 'example@gmail.com' so we can verify your email and complete your registration."}
+              {lang === 'vi' ? `Vui lòng nhấp vào liên kết trong email vừa được gửi dến '${email || 'email của bạn'}' để chúng tôi có thể xác minh email và hoàn tất đăng ký.` : `Please click the link in the email we've just sent to '${email || 'your email'}' so we can verify your email and complete your registration.`}
             </p>
           </div>
 

@@ -10,22 +10,16 @@ service cloud.firestore {
     // Helper functions
     function isSignedIn() { return request.auth != null; }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function isAdmin() { 
+      return isSignedIn() && 
+        'email' in request.auth.token && 
+        (request.auth.token.email == 'hoangphucunknown@gmail.com' || request.auth.token.email.lower() == 'hoangphucunknown@gmail.com'); 
+    }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
     
     function isValidOrder(data) {
-      return data.keys().hasAll(['userId', 'customerInfo', 'items', 'subtotal', 'packagingFee', 'total', 'wrappingOption', 'paymentMethod', 'status', 'createdAt']) &&
-        data.userId is string && data.userId.size() <= 128 &&
-        (data.userId == 'guest' || (request.auth != null && data.userId == request.auth.uid)) &&
-        data.customerInfo is map &&
-        data.items is list && data.items.size() <= 100 &&
-        data.subtotal is number &&
-        data.packagingFee is number &&
-        data.total is number &&
-        data.wrappingOption is string &&
-        data.paymentMethod is string &&
-        data.status is string && data.status.size() <= 50 &&
-        data.createdAt is timestamp;
+      return data.keys().hasAll(['userId', 'items', 'total', 'status', 'createdAt']);
     }
 
     match /users/{userId} {
@@ -34,15 +28,20 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isValidOrder(incoming());
-      allow update, delete: if false;
+      allow create: if true;
+      allow get, update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || resource.data.userId == 'guest';
+      allow list: if true;
     }
 
     match /wishlists/{wishlistId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /admin/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

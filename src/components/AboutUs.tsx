@@ -14,11 +14,11 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
       <section className="relative w-full min-h-[600px] md:min-h-[700px] rounded-[32px] overflow-hidden group shadow-xl border border-[#00687A]/10 flex items-center">
         <div className="absolute inset-0">
            <img 
-             src="https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
+             src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
              className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
              alt="Chạm Studio Workspace Background" 
              referrerPolicy="no-referrer"
-           />
+            loading="lazy" />
         </div>
         {/* Gradient overlays to make text readable */}
         <div className="absolute inset-0 bg-[#FBF5F2]/40" />
@@ -56,7 +56,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
                   <p>Therefore, CHẠM promises to accompany you on your journey of personal discovery. A space where you freely blend colors, customize combinations, and leave your own unique imprint. Even a familiar everyday item, through your delicate touch, becomes a one-of-a-kind, irreplaceable masterpiece.</p>
                   <div className="pt-4">
                     <p className="italic text-slate-700 bg-white/40 backdrop-blur-sm p-5 py-4 border-l-4 border-[#E28C9A] rounded-r-xl shadow-sm">
-                      Because in the end, the true value of an object lies not in its physical appearance, but in how it cradles, reflects, and resonates with your internal frequency. A slight touch, a moment of reflection, is a step closer to balance.
+                      Because in the end, the true value of an object lies not in physical appearance, but in how it cradles, reflects, and resonates with your internal frequency. A slight touch, a moment of reflection, is a step closer to balance.
                     </p>
                   </div>
                 </>
@@ -69,11 +69,11 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
       <section className="relative w-full min-h-[500px] md:min-h-[600px] rounded-[32px] overflow-hidden group shadow-xl border border-[#00687A]/10 flex flex-col md:flex-row items-center justify-between">
         <div className="absolute inset-0">
            <img 
-             src="https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
+             src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
              className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
              alt="Chạm Brand Meaning Background" 
              referrerPolicy="no-referrer"
-           />
+            loading="lazy" />
         </div>
         {/* Gradient overlays to make text readable, this time fading from Right to Left */}
         <div className="absolute inset-0 bg-[#FBF5F2]/40" />
@@ -82,16 +82,16 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
         {/* Brand Logo Display on Left */}
         <div className="relative z-20 w-full md:w-1/2 flex justify-center items-center p-8 md:pl-16">
           <img 
-            src="https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/725e9664b9c72f9af9fee9399adbfe17e52a2f2f/LOGO%20.png" 
+            src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@725e9664b9c72f9af9fee9399adbfe17e52a2f2f/LOGO%20.png" 
             className="w-full max-w-[250px] md:max-w-[500px] h-auto object-contain drop-shadow-2xl opacity-90 transition-transform duration-700 hover:scale-105" 
             alt="Chạm Large Logo" 
             referrerPolicy="no-referrer"
-          />
+           loading="lazy" />
         </div>
 
         <div className="relative z-20 w-full md:w-1/2 max-w-2xl px-6 md:px-16 py-12 space-y-8 flex flex-col items-start md:items-end text-left md:text-right">
            <div className="bg-white/50 backdrop-blur-md p-3 px-5 rounded-2xl shadow-sm mb-4">
-             <img src={LOGO_HORIZONTAL_URL} className="h-8 md:h-10 w-auto object-contain" alt="Chạm Logo" />
+             <img src={LOGO_HORIZONTAL_URL} className="h-8 md:h-10 w-auto object-contain" alt="Chạm Logo"  referrerPolicy="no-referrer"  loading="lazy" />
            </div>
            
            <h2 className="font-serif text-3xl md:text-5xl text-[#00687A] font-bold uppercase tracking-tight">

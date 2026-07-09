@@ -13,17 +13,17 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
       id: 'mat-01',
       titleVi: 'Bộ Ba Kẹp Tóc Bản Mệnh – Định Hình Phong Cách',
       titleEn: 'The Three Elemental Styling Clips',
-      nameVi: 'Kẹp Xà Cừ (Mother of Pearl)',
-      nameEn: 'Mother of Pearl',
+      nameVi: 'Kẹp Ánh Mây (Mother of Pearl)',
+      nameEn: 'Cloud Glow Clip',
       descVi: 'Mang nét đẹp cổ điển, sang trọng với hiệu ứng bắt sáng thanh lịch. Phù hợp cho những ngày bạn cần sự điềm tĩnh, chỉn chu và thu hút may mắn một cách tinh tế.',
       descEn: 'Brings classic, luxurious beauty with an elegant light-catching effect. Perfect for days when you need calmness, neatness, and a subtle charm of luck.',
       images: [
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/DMK%20%20BRAND%20ELEMENT%20-47.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/kim%20.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/m%E1%BB%99c.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/thu%E1%BB%B7.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/ho%E1%BA%A3.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/th%E1%BB%95.png'
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%203%20k%E1%BA%B9p%20%C3%A1nh%20m%C3%A2y%20g%E1%BA%AFn%20ch%E1%BB%AF%20d%C3%A1n%20b%E1%BA%A1c%20v%C3%A0%20v%C3%A0ng.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/kim%20.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/m%E1%BB%99c.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/thu%E1%BB%B7.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/ho%E1%BA%A3.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%201/th%E1%BB%95.png'
       ],
     },
     {
@@ -35,29 +35,12 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
       descVi: 'Trong suốt, lấp lánh và thuần khiết. Biểu tượng cho một nguồn năng lượng sạch, giúp thanh lọc tâm trí, mang lại sự sáng suốt và nhẹ nhàng cho bạn mỗi ngày.',
       descEn: 'Transparent, sparkling, and pure. A symbol of clean energy, helping to purify the mind, bringing clarity and lightness to your every day.',
       images: [
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/M%E1%BA%AAU-2.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/kim%20.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/m%E1%BB%99c.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/thu%E1%BB%B7.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/ho%E1%BA%A3.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/th%E1%BB%95.png'
-      ],
-    },
-    {
-      id: 'mat-03',
-      titleVi: 'Bộ Ba Kẹp Tóc Bản Mệnh – Định Hình Phong Cách',
-      titleEn: 'The Three Elemental Styling Clips',
-      nameVi: 'Kẹp Vỏ Sò Ánh Nhũ (Seashell of Shimmering)',
-      nameEn: 'Seashell of Shimmering',
-      descVi: 'Mang hơi thở tự do của biển cả với những đường vân tự nhiên, độc bản. Dành riêng cho những tâm hồn phóng khoáng, thích sáng tạo và muốn tìm kiếm sự hanh thông, tươi mới.',
-      descEn: 'Carries the free breath of the ocean with unique, natural patterns. Dedicated to open-minded souls who love creativity and seek a fresh, prosperous flow.',
-      images: [
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/M%E1%BA%AAU-3.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/KIM.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/m%E1%BB%99c.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/thu%E1%BB%B7.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/ho%E1%BA%A3.png',
-        'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%203/th%E1%BB%95.png'
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/K%E1%BA%B8P%20M%E1%BA%AAU/%E1%BA%A2nh%20m%E1%BA%ABu%203%20k%E1%BA%B9p%20pha%20l%C3%AA%20g%E1%BA%AFn%20ch%E1%BB%AF%20d%C3%A1n%20v%C3%A0ng.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/kim%20.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/m%E1%BB%99c.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/thu%E1%BB%B7.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/ho%E1%BA%A3.png',
+        'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%202/th%E1%BB%95.png'
       ],
     }
   ];
@@ -76,22 +59,27 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
     highlightVi: 'Nó ẩn dụ cho chính hành trình của bạn — năng lượng nội tại và bản sắc độc bản của bạn chỉ thực sự tỏa sáng rực rỡ nhất khi bạn can đảm bước ra ngoài thế giới, đón lấy ánh mặt trời và làm chủ cuộc sống của chính mình. Một món đồ tối thượng dành cho những ai sở hữu cá tính mạnh mẽ, không thích sự rập khuôn.',
     highlightEn: 'It\'s a metaphor for your own journey — your internal energy and unique identity only truly shine their brightest when you have the courage to step out into the world, embrace the sun, and take mastery of your own life. An ultimate item for those with strong personalities who dislike conformity.',
     images: [
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/DMK%20%20BRAND%20ELEMENT%20-48.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/1.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-28.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-24.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-25.png',
-      'https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-27.png'
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/K%E1%BA%B8P%20M%E1%BA%AAU/DMK%20%20BRAND%20ELEMENT%20-48.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/1.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-28.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-24.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-25.png',
+      'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/BRAND%20ELEMENT/LIMITED%20EDITION/DMK%20%20BRAND%20ELEMENT%20-27.png'
     ]
   };
 
-  const [activeIndices, setActiveIndices] = useState([0, 0, 0]);
+  const [activeIndices, setActiveIndices] = useState([0, 0]);
   const [activeLimitedIndex, setActiveLimitedIndex] = useState(0);
+
+  // Tạm ẩn limited edition
+  const hideLimitedEdition = true;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndices(prev => prev.map((idx, i) => (idx + 1) % materialsData[i].images.length));
-      setActiveLimitedIndex(prev => (prev + 1) % limitedData.images.length);
+      if (!hideLimitedEdition) {
+        setActiveLimitedIndex(prev => (prev + 1) % limitedData.images.length);
+      }
     }, 4000); // Rotate images every 4 seconds
     return () => clearInterval(interval);
   }, []);
@@ -142,7 +130,7 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
                             alt={`${mat.id} - ${imgIndex}`} 
                             className={`absolute inset-0 w-full h-[300px] object-contain transition-all duration-1000 ease-in-out ${imgIndex === activeIndices[index] ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                             referrerPolicy="no-referrer"
-                          />
+                           loading="lazy" />
                        ))}
                      </div>
                      <div className={`w-full md:w-7/12 ${index % 2 === 1 ? 'text-left md:text-right' : ''}`}>
@@ -158,6 +146,7 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
                </div>
              </div>
 
+             {!hideLimitedEdition && (
              <div className="mt-16 pt-16 border-t border-[#00687A]/10 bg-gradient-to-br from-slate-50 to-[#FADBDC]/20 -mx-8 md:-mx-16 px-8 md:px-16 pb-8 md:pb-16 rounded-b-[40px] relative">
                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#E28C9A]/10 rounded-full blur-[100px] pointer-events-none" />
                 
@@ -192,12 +181,13 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
                             alt={`Limited - ${imgIndex}`} 
                             className={`absolute w-full max-w-[400px] h-auto drop-shadow-2xl transition-all duration-1000 ease-in-out ${imgIndex === activeLimitedIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                             referrerPolicy="no-referrer"
-                          />
+                           loading="lazy" />
                        ))}
                     </div>
                   </div>
                 </div>
              </div>
+             )}
         </div>
 
         <div className="flex justify-center mt-12 mb-16 relative z-10">

@@ -3,6 +3,42 @@ import { CartItem, ElementType } from '../types';
 import { ELEMENTS, CHARMS, BASE_STYLES } from '../data';
 import { X, Trash2, Plus, Minus, ShoppingBag, ChevronRight } from 'lucide-react';
 
+const MIRROR_IMAGES_CHU_NOI: Record<string, string> = {
+  KIM: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Kim.png',
+  MOC: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Th%E1%BB%95.png',
+  THUY: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Thu%E1%BB%B7.png',
+  HOA: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Ho%E1%BA%A3.png',
+  THO: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Th%E1%BB%95(1).png'
+};
+
+const MIRROR_IMAGES_LINH_VAT: Record<string, string> = {
+  KIM: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Kim.png',
+  MOC: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20M%E1%BB%99c.png',
+  THUY: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Thu%E1%BB%B7.png',
+  HOA: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Ho%E1%BA%A3.png',
+  THO: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Th%E1%BB%95.png'
+};
+
+const getCartItemImage = (item: CartItem): string => {
+  if (item.product?.category === 'mirror' || item.product?.id === 'guong') {
+    const isZodiacMode = item.customization?.customType === 'zodiac' || !!item.customization?.selectedZodiacCharmId;
+    const mirrorMap = isZodiacMode ? MIRROR_IMAGES_LINH_VAT : MIRROR_IMAGES_CHU_NOI;
+    return mirrorMap[item.customization?.element] || item.product?.images?.['none'] || '';
+  }
+  return item.product?.images?.[item.customization?.element] || item.product?.images?.['none'] || Object.values(item.product?.images || {})[0] || '';
+};
+
+const getTextColorName = (color?: string, lang: 'vi' | 'en' = 'vi') => {
+  if (!color) return '';
+  const map: Record<string, { vi: string; en: string }> = {
+    silver: { vi: 'Bạc', en: 'Silver' },
+    gold: { vi: 'Vàng', en: 'Gold' },
+    white: { vi: 'Trắng', en: 'White' },
+    pink: { vi: 'Hồng', en: 'Pink' }
+  };
+  return map[color] ? ` - ${map[color][lang]}` : '';
+};
+
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -121,10 +157,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     {/* Item Image */}
                     <div className="w-24 h-24 rounded-lg bg-[#F5F5F5] flex items-center justify-center relative shrink-0 overflow-hidden">
                       <img 
-                         src={item.product?.images?.[item.customization?.color] || item.product?.image || item.product?.images?.['none'] || Object.values(item.product?.images || {})[0] || 'https://via.placeholder.com/150?text=Chạm'} 
+                         src={getCartItemImage(item)} 
                          alt={item.product?.name} 
                          className="w-full h-full object-cover mix-blend-multiply"
-                       />
+                        referrerPolicy="no-referrer"  loading="lazy" />
                     </div>
 
                     {/* Specifications detail listing */}
@@ -132,7 +168,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div>
                         <div className="flex items-start justify-between gap-1">
                           <h4 className="font-bold text-slate-900 text-sm leading-tight line-clamp-2 pr-5">
-                            {lang === 'vi' ? item.product.vietnameseName : item.product.name}
+                            {(() => {
+                              let itemName = lang === 'vi' ? item.product.vietnameseName : item.product.name;
+                              if (item.customization.comboId === 'couple_combo') {
+                                return lang === 'vi' ? `Combo Chạm Cùng Nhau (${itemName})` : `Couple Combo (${itemName})`;
+                              } else if (item.customization.comboId === 'mirror_combo') {
+                                return lang === 'vi' ? `Combo Chạm Ánh Nhìn (${itemName} & Gương)` : `Mirror Combo (${itemName} & Mirror)`;
+                              }
+                              return itemName;
+                            })()}
                           </h4>
                           <button 
                             onClick={() => onRemoveItem(item.id)}
@@ -148,15 +192,45 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       {/* Attribute Bullets */}
                       <div className="flex flex-col gap-0.5 items-start mt-1.5">
-                        <span className="text-[11px] text-slate-500 line-clamp-1">
-                          {elementProfile && (lang === 'vi' ? elementProfile.nameVi : elementProfile.nameEn)} 
-                          {charmProfile && ` - ${lang === 'vi' ? charmProfile.vietnameseName : charmProfile.name}`}
-                        </span>
+                        {item.customization.comboId ? (
+                          <>
+                            {/* Product 1 details */}
+                            <span className="text-[11px] text-slate-500">
+                              <span className="font-bold">{lang === 'vi' ? 'Sản phẩm 1' : 'Product 1'}:</span> {elementProfile && (lang === 'vi' ? elementProfile.nameVi : elementProfile.nameEn)} 
+                              {charmProfile && ` - ${lang === 'vi' ? charmProfile.vietnameseName : charmProfile.name}`}
+                              {item.customization.text && ` - "${item.customization.text}" (${item.customization.letteringStyle === 'embossed' ? (lang === 'vi' ? 'nổi' : '3D') : (lang === 'vi' ? 'dán' : 'sticker')}${getTextColorName(item.customization.textStyleOption, lang)})`}
+                            </span>
+                            {/* Product 2 details */}
+                            <span className="text-[11px] text-slate-500">
+                              <span className="font-bold">{lang === 'vi' ? 'Sản phẩm 2' : 'Product 2'}:</span> {(() => {
+                                const partnerElement = item.customization.partnerElement;
+                                const partnerElementProfile = ELEMENTS.find(e => e.type === partnerElement);
+                                const charmProfile2 = CHARMS.find((c) => c.id === item.customization.selectedZodiacCharmId2);
+                                const text2 = item.customization.text2;
+                                const letteringStyle2 = item.customization.letteringStyle2;
+                                return (
+                                  <>
+                                    {partnerElementProfile ? (lang === 'vi' ? partnerElementProfile.nameVi : partnerElementProfile.nameEn) : ''}
+                                    {charmProfile2 ? ` - ${lang === 'vi' ? charmProfile2.vietnameseName : charmProfile2.name}` : ''}
+                                    {text2 ? ` - "${text2}" (${letteringStyle2 === 'embossed' ? (lang === 'vi' ? 'nổi' : '3D') : (lang === 'vi' ? 'dán' : 'sticker')}${getTextColorName(item.customization.textStyleOption2, lang)})` : ''}
+                                  </>
+                                );
+                              })()}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-[11px] text-slate-500 line-clamp-1">
+                              {elementProfile && (lang === 'vi' ? elementProfile.nameVi : elementProfile.nameEn)} 
+                              {charmProfile && ` - ${lang === 'vi' ? charmProfile.vietnameseName : charmProfile.name}`}
+                            </span>
 
-                        {item.customization.text && (
-                          <span className="text-[11px] text-slate-500 line-clamp-1">
-                            {lang === 'vi' ? 'Khắc chữ' : 'Text'}: "{item.customization.text}" ({item.customization.letteringStyle === 'embossed' ? (lang === 'vi' ? 'nổi' : '3D') : (lang === 'vi' ? 'dán' : 'sticker')})
-                          </span>
+                            {item.customization.text && (
+                              <span className="text-[11px] text-slate-500 line-clamp-1">
+                                {lang === 'vi' ? 'Khắc chữ' : 'Text'}: "{item.customization.text}" ({item.customization.letteringStyle === 'embossed' ? (lang === 'vi' ? 'nổi (acrylic)' : '3D (acrylic)') : (lang === 'vi' ? 'dán' : 'sticker')}{getTextColorName(item.customization.textStyleOption, lang)})
+                              </span>
+                            )}
+                          </>
                         )}
                         {item.product.category === 'sweatshirt' && item.customization.uploadedPhotoUrl && (
                           <span className="text-[11px] text-slate-500 line-clamp-1">
@@ -210,7 +284,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                    onClose();
                    onNavigateToCart();
                  }}
-                 className="flex-1 py-3.5 bg-[#F2F2F2] hover:bg-[#E5E5E5] text-gray-900 font-bold text-[13px] tracking-wider uppercase rounded-full transition flex items-center justify-center cursor-pointer font-sans"
+                 className="hidden py-3.5 bg-[#F2F2F2] hover:bg-[#E5E5E5] text-gray-900 font-bold text-[13px] tracking-wider uppercase rounded-full transition items-center justify-center cursor-pointer font-sans"
                >
                  <span>{lang === 'vi' ? 'Xem Giỏ Hàng' : 'View Bag'}</span>
                </button>

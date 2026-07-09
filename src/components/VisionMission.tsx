@@ -98,9 +98,21 @@ export const VisionMission: React.FC<VisionMissionProps> = ({ lang }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
         
         {/* Vision Card panel */}
-        <div className="bg-[#FAF4EF] border border-[#E28C9A]/12 rounded-3xl p-8 space-y-6 flex flex-col justify-between relative overflow-hidden shadow-xs">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#EADAB7]/8 rounded-full blur-2xl" />
-          <div className="space-y-4 relative z-10">
+        <div className="bg-[#FAF4EF] border border-[#E28C9A]/12 rounded-3xl p-8 space-y-6 flex flex-col justify-between relative overflow-hidden shadow-xs group">
+          <div className="absolute inset-0 z-0">
+             <img 
+               src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
+               className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
+               alt="Chạm Studio Workspace Background" 
+               referrerPolicy="no-referrer"
+              loading="lazy" />
+          </div>
+          {/* Gradient overlays to make text readable */}
+          <div className="absolute inset-0 bg-[#FAF4EF]/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FAF4EF]/95 via-[#FAF4EF]/85 to-[#FAF4EF]/40 z-10" />
+
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#EADAB7]/8 rounded-full blur-2xl z-20" />
+          <div className="space-y-4 relative z-20">
             <div className="w-12 h-12 rounded-2xl bg-white border border-[#E28C9A]/20 flex items-center justify-center text-[#E28C9A] shadow-xs">
               <Eye className="w-6 h-6" />
             </div>
@@ -111,15 +123,27 @@ export const VisionMission: React.FC<VisionMissionProps> = ({ lang }) => {
               {active.visionText}
             </p>
           </div>
-          <div className="pt-6 relative z-10">
+          <div className="pt-6 relative z-20">
             <div className="h-[1px] w-12 bg-[#EADAB7]" />
           </div>
         </div>
 
         {/* Mission Card panel */}
-        <div className="bg-[#FBF5F2] border border-[#E28C9A]/12 rounded-3xl p-8 space-y-6 relative overflow-hidden shadow-xs">
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#E28C9A]/6 rounded-full blur-2xl" />
-          <div className="space-y-4">
+        <div className="bg-[#FBF5F2] border border-[#E28C9A]/12 rounded-3xl p-8 space-y-6 relative overflow-hidden shadow-xs group">
+          <div className="absolute inset-0 z-0">
+             <img 
+               src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png" 
+               className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
+               alt="Chạm Studio Workspace Background" 
+               referrerPolicy="no-referrer"
+              loading="lazy" />
+          </div>
+          {/* Gradient overlays to make text readable */}
+          <div className="absolute inset-0 bg-[#FBF5F2]/40" />
+          <div className="absolute inset-0 bg-gradient-to-tl from-[#FBF5F2]/95 via-[#FBF5F2]/85 to-[#FBF5F2]/40 z-10" />
+
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#E28C9A]/6 rounded-full blur-2xl z-20" />
+          <div className="space-y-4 relative z-20">
             <div className="w-12 h-12 rounded-2xl bg-white border border-[#E28C9A]/20 flex items-center justify-center text-[#E28C9A] shadow-xs">
               <Target className="w-6 h-6" />
             </div>

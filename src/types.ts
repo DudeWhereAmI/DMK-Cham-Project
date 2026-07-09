@@ -8,6 +8,9 @@ export interface Product {
   category: 'clip-1' | 'clip-2' | 'clip-3' | 'limited' | 'mirror';
   defaultColor: string;
   images?: Record<string, string>; // e.g. { 'none': url, 'KIM': url, 'MOC': url... }
+  imagesTilted?: Record<string, string>; // e.g. { 'KIM': url, 'MOC': url... }
+  imagesWithCharm?: Record<string, string>; // e.g. { 'KIM': url, 'MOC': url... }
+  imagesWithText?: Record<string, Record<string, string>>; // e.g. { 'sticker-silver': { 'KIM': url }, 'embossed-pink': { 'KIM': url } }
 }
 
 export type ElementType = 'KIM' | 'MOC' | 'THUY' | 'HOA' | 'THO';
@@ -24,6 +27,7 @@ export interface ElementProfile {
   guardianEmoji: string;
   guardianImg?: string;
   description: string;
+  descriptionVi: string;
 }
 
 export type BaseStyleType = 'crystal' | 'motherOfPearl' | 'shimmerShell' | 'solarChange';
@@ -45,7 +49,7 @@ export interface CharmItem {
   id: string;
   name: string;
   vietnameseName: string;
-  category: 'zodiac' | 'bow' | 'sea' | 'other' | 'regular' | 'stone';
+  category: 'zodiac' | 'bow' | 'sea' | 'other' | 'regular' | 'stone' | 'bow-small' | 'bow-big' | 'sticker-deco';
   emoji?: string;
   imageUrl?: string;
   priceModifier: number;
@@ -55,13 +59,22 @@ export interface CharmItem {
 export interface CustomizationState {
   productId: string;
   element: ElementType;
+  partnerElement?: ElementType;
+  comboId?: 'couple_combo' | 'mirror_combo';
   baseStyle: BaseStyleType;
   customType: CustomizationCategory;
   text: string;
-  letteringStyle: LetteringStyle;
+  textStyleOption?: string; // 'silver' | 'gold' | 'white' | 'pink'
+  letteringStyle?: LetteringStyle;
   textColor: string;
   selectedZodiacCharmId: string;
   selectedStickerIds: string[];
+  // Separate customization fields for Product 2 (for combos/couple items)
+  text2?: string;
+  textStyleOption2?: string;
+  letteringStyle2?: LetteringStyle;
+  selectedZodiacCharmId2?: string;
+  selectedStickerIds2?: string[];
   uploadedPhotoUrl?: string; // For embroidery sweatshirt simulation
   sunlightMode: boolean; // For "change color in the sun" demo
 }

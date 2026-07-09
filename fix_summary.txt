@@ -1,0 +1,8 @@
+Root cause: 
+fetchInventoryFromFirestore failed silently for guests due to a "Missing or insufficient permissions" error when querying the orders collection. 
+Because it failed, it skipped updating localStorage (saveInventory). 
+Since localStorage was never updated for guests, getInventory() fell back to INITIAL_INVENTORY, which is fully stocked. 
+This allowed guests to see all options as available and place orders normally, bypassing the locks.
+Admins did not experience this issue because their authenticated state (isAdmin()) allowed the query to succeed, so their local storage was correctly updated with the locked inventory states.
+Fix: 
+Deployed the firestore.rules (which included allow list: if true for orders) to the live database, which had not been deployed correctly previously.

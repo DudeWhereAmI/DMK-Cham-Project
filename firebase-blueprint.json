@@ -12,12 +12,28 @@
         "createdAt": { "type": "timestamp" }
       },
       "required": ["userId", "totalPrice", "status", "items", "createdAt"]
+    },
+    "Inventory": {
+      "title": "Inventory",
+      "description": "Stock tracking for products and charms",
+      "type": "object",
+      "properties": {
+        "products": { "type": "object" },
+        "charms": { "type": "object" },
+        "history": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["products", "charms", "history", "updatedAt"]
     }
   },
   "firestore": {
     "orders/{orderId}": {
       "schema": "Order",
       "description": "Store user orders"
+    },
+    "admin/inventory": {
+      "schema": "Inventory",
+      "description": "Shared stock inventory state"
     }
   }
 }

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, CustomizationState, CartItem, ElementType } from './types';
-import { PRODUCTS, ELEMENTS, CHARMS, BASE_STYLES, LETTERING_PRICING } from './data';
+import { PRODUCTS, ELEMENTS, CHARMS, BASE_STYLES, LETTERING_PRICING, getProductBasePrice } from './data';
 import { Navbar } from './components/Navbar';
 import { ShopGrid } from './components/ShopGrid';
 import { LandingPage } from './components/LandingPage';
@@ -13,13 +13,69 @@ import { WarrantyPolicy } from './components/WarrantyPolicy';
 import { ReturnPolicy } from './components/ReturnPolicy';
 import { ContactUs } from './components/ContactUs';
 import { ElementSubpage } from './components/ElementSubpage';
+import { CollectionLanding } from './components/CollectionLanding';
+import { CollectionChamToi } from './components/CollectionChamToi';
+import { CollectionChamDoi } from './components/CollectionChamDoi';
+import { CollectionCombo } from './components/CollectionCombo';
 import { MaterialsSubpage } from './components/MaterialsSubpage';
 import { SignInForm } from './components/SignInForm';
 import { RegisterForm } from './components/RegisterForm';
 import { UserProfile } from './components/UserProfile';
 import { CheckoutPage } from './components/CheckoutPage';
 import { CartPage } from './components/CartPage';
-import { Sparkles, Star, ShoppingBag, Heart, Check, Facebook, Instagram, Twitter, Youtube, ChevronRight, Plus } from 'lucide-react';
+import { checkIsInitiallySoldOut, checkIsSoldOut, fetchInventoryFromFirestore, checkIsCharmSoldOut } from './lib/inventory';
+
+export const getAvailableElement = (categoryId: string, preferred: ElementType): ElementType => {
+  if (!checkIsSoldOut(categoryId, preferred)) return preferred;
+  const elements: ElementType[] = ['KIM', 'MOC', 'THUY', 'HOA', 'THO'];
+  for (const el of elements) {
+    if (!checkIsSoldOut(categoryId, el)) return el;
+  }
+  return preferred; // fallback
+};
+
+export const getInitialCharmSelection = (categoryId: string, preferred: ElementType = 'KIM') => {
+  const elements: ElementType[] = ['KIM', 'MOC', 'THUY', 'HOA', 'THO'];
+  
+  // A charm is sold out if either the charm stock itself is <= 0 or the product element is sold out
+  const isCharmSoldOut = (el: ElementType) => {
+    return checkIsCharmSoldOut(el) || checkIsSoldOut(categoryId, el);
+  };
+
+  // 1. Check if ALL 5 elements/charms are sold out
+  const allSoldOut = elements.every(el => isCharmSoldOut(el));
+  if (allSoldOut) {
+    return {
+      element: getAvailableElement(categoryId, preferred),
+      selectedZodiacCharmId: ''
+    };
+  }
+
+  // 2. Try preferred element first (if not sold out)
+  if (!isCharmSoldOut(preferred)) {
+    return {
+      element: preferred,
+      selectedZodiacCharmId: `zodiac-${preferred.toLowerCase()}`
+    };
+  }
+
+  // 3. Find first element that is not sold out
+  for (const el of elements) {
+    if (!isCharmSoldOut(el)) {
+      return {
+        element: el,
+        selectedZodiacCharmId: `zodiac-${el.toLowerCase()}`
+      };
+    }
+  }
+
+  // Fallback
+  return {
+    element: getAvailableElement(categoryId, preferred),
+    selectedZodiacCharmId: ''
+  };
+};
+import { Sparkles, Star, ShoppingBag, Heart, Check, Facebook, Instagram, Twitter, Youtube, ChevronRight, Plus, MapPin, Phone, Mail, Loader2 } from 'lucide-react';
 import { PngLogoCircular } from './components/PngLogo';
 import { auth, db } from './lib/firebase';
 import { collection, query, where, getDocs, deleteDoc, addDoc, Timestamp } from 'firebase/firestore';
@@ -34,7 +90,13 @@ export const LogoVertical = ({ className }: { className?: string }) => {
 
 export default function App() {
   // Navigation states with home view as default
-  const [currentView, setCurrentView] = useState<'home' | 'shop' | 'customizer' | 'about' | 'vision' | 'warranty' | 'return_policy' | 'contact' | 'element' | 'materials' | 'login' | 'register' | 'profile' | 'checkout' | 'cart'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'shop' | 'customizer' | 'about' | 'vision' | 'warranty' | 'return_policy' | 'contact' | 'element' | 'materials' | 'login' | 'register' | 'profile' | 'checkout' | 'cart' | 'collection_cham_than' | 'collection_cham_toi' | 'collection_cham_doi'>('home');
+  const [customizerBackState, setCustomizerBackState] = useState<{ view: string; elementId?: string } | null>(null);
+  const [checkoutOrigin, setCheckoutOrigin] = useState<string>('home');
+  const [chamToiInitialIndex, setChamToiInitialIndex] = useState(0);
+  const [chamToiInitialProductId, setChamToiInitialProductId] = useState<string | undefined>(undefined);
+  const [customizerMode, setCustomizerMode] = useState<'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided'>('full');
+  const [activeTab, setActiveTab] = useState<'p1' | 'p2'>('p1');
   const [selectedProduct, setSelectedProduct] = useState<Product>(PRODUCTS[0]);
   const [selectedElementId, setSelectedElementId] = useState<string>('kim');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -42,10 +104,21 @@ export default function App() {
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMsg, setNewsletterMsg] = useState('');
   
+  const [shopFilter, setShopFilter] = useState<string>('all');
   const [globalDiscountCode, setGlobalDiscountCode] = useState('');
   const [isGlobalDiscountApplied, setIsGlobalDiscountApplied] = useState(false);
   
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [isInventoryLoaded, setIsInventoryLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchInventoryFromFirestore().then((res) => { console.log("Inventory loaded:", res);
+      setIsInventoryLoaded(true);
+    }).catch(err => {
+      console.warn("Failed to fetch shared inventory from Firestore at startup:", err); alert("Inventory fetch failed: " + err.message);
+      setIsInventoryLoaded(true);
+    });
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -53,7 +126,13 @@ export default function App() {
         const q = query(collection(db, 'wishlists'), where('userId', '==', user.uid));
         getDocs(q).then((snapshot) => {
           setWishlistIds(snapshot.docs.map(doc => doc.data().productId));
-        }).catch(err => console.error("Error loading wishlist:", err));
+        }).catch(err => {
+          if (err?.message?.includes('client is offline')) {
+            console.warn("Client is offline, wishlist won't be loaded.");
+          } else {
+            console.error("Error loading wishlist:", err);
+          }
+        });
       } else {
         setWishlistIds([]);
       }
@@ -157,10 +236,16 @@ export default function App() {
     baseStyle: 'crystal',
     customType: 'zodiac',
     text: '',
-    letteringStyle: 'sticker',
+    letteringStyle: 'embossed',
+    textStyleOption: 'white',
     textColor: '#FFFFFF',
     selectedZodiacCharmId: 'zodiac-hoa', // Phoenix charm
     selectedStickerIds: [],
+    text2: '',
+    letteringStyle2: undefined,
+    textStyleOption2: undefined,
+    selectedZodiacCharmId2: '',
+    selectedStickerIds2: [],
     uploadedPhotoUrl: undefined,
     sunlightMode: false,
   });
@@ -186,7 +271,7 @@ export default function App() {
   const [suggestionTab, setSuggestionTab] = useState<'supporters' | 'recent'>('supporters');
 
   // Keep state sync when switching products
-  const handleSelectProduct = (product: Product, elementOverride?: ElementType) => {
+  const handleSelectProduct = (product: Product, elementOverride?: ElementType, customizerMode?: 'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided') => {
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'select_item', {
         item_list_id: currentView,
@@ -217,9 +302,19 @@ export default function App() {
       return [product.id, ...filtered].slice(0, 5);
     });
     
+    setCustomizerBackState(prev => {
+      if (currentView === 'customizer') return prev;
+      return {
+        view: currentView,
+        elementId: elementOverride ? elementOverride.toLowerCase() : selectedElementId
+      };
+    });
+    
     // Determine default element alignment based on product's theme color or default
     let defaultElement: ElementType = elementOverride || 'HOA'; // Default Hoả
     if (!elementOverride && product.id === 'hand-mirror') defaultElement = 'THUY'; // Soft Blue mirror
+    
+    defaultElement = getAvailableElement(product.category, defaultElement);
 
     setCustomization({
       productId: product.id,
@@ -227,25 +322,47 @@ export default function App() {
       baseStyle: 'crystal',
       customType: 'zodiac',
       text: '',
-      letteringStyle: 'sticker',
+      letteringStyle: undefined,
       textColor: '#FFFFFF',
       selectedZodiacCharmId: `zodiac-${defaultElement.toLowerCase()}`,
       selectedStickerIds: [],
+      text2: '',
+      letteringStyle2: undefined,
+      selectedZodiacCharmId2: '',
+      selectedStickerIds2: [],
       uploadedPhotoUrl: undefined,
       sunlightMode: false,
     });
     
+    setCustomizerMode(customizerMode || 'full');
     setCurrentView('customizer');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Cost calculator
-  const calculateLivePrice = (): number => {
-    let price = selectedProduct.basePrice;
+  const calculateBasePrice = (): number => {
+    let base = getProductBasePrice(selectedProduct.id, customization.element);
+    if (customizerMode === 'couple' && customization.comboId) {
+      if (customization.comboId === 'couple_combo') {
+        base = base * 2;
+      } else if (customization.comboId === 'mirror_combo') {
+        base = base + getProductBasePrice('guong', customization.element);
+      }
+    }
+    return base;
+  };
 
-    // Lettering fee applied if user typed a name/monogram
-    if (customization.text) {
-      price += LETTERING_PRICING[customization.letteringStyle];
+  const calculateLivePrice = (): number => {
+    let price = calculateBasePrice();
+
+    // Lettering fee applied if user selected a lettering style
+    if (customization.letteringStyle && customizerMode !== 'charm-only') {
+      price += LETTERING_PRICING[customization.letteringStyle] || 0;
+    }
+
+    // Lettering fee for Product 2 (couple combo only)
+    if (customizerMode === 'couple' && customization.letteringStyle2 && customizerMode !== 'charm-only') {
+      price += LETTERING_PRICING[customization.letteringStyle2] || 0;
     }
 
     // Charm overlay selector modifier (Zodiac charm is 5k)
@@ -256,12 +373,32 @@ export default function App() {
       }
     }
 
-    // Stickers price calculation
+    // Charm overlay selector modifier for Product 2 (couple combo only)
+    if (customizerMode === 'couple' && customization.selectedZodiacCharmId2) {
+      const charmProfile = CHARMS.find((c) => c.id === customization.selectedZodiacCharmId2);
+      if (charmProfile) {
+        price += charmProfile.priceModifier;
+      }
+    }
+
+    // Stickers price calculation (Temporarily free)
     if (customization.selectedStickerIds) {
       customization.selectedStickerIds.forEach(id => {
         const charmProfile = CHARMS.find(c => c.id === id);
         if (charmProfile) {
-          price += charmProfile.priceModifier;
+          // Temporarily free: do not add priceModifier
+          // price += charmProfile.priceModifier;
+        }
+      });
+    }
+
+    // Stickers price calculation for Product 2 (couple combo only) (Temporarily free)
+    if (customizerMode === 'couple' && customization.selectedStickerIds2) {
+      customization.selectedStickerIds2.forEach(id => {
+        const charmProfile = CHARMS.find(c => c.id === id);
+        if (charmProfile) {
+          // Temporarily free: do not add priceModifier
+          // price += charmProfile.priceModifier;
         }
       });
     }
@@ -294,25 +431,39 @@ export default function App() {
   };
 
   // Add customized accessory into cart drawer
-  const handleAddToCart = () => {
+  const handleAddToCart = (qty: number = 1) => {
     const finalPrice = calculateLivePrice();
+    
+    // Enforce mirror exclusivity rule (cannot have both charm and text)
+    const finalCustomization = { ...customization };
+    if (selectedProduct.category === 'mirror') {
+      if (finalCustomization.letteringStyle) {
+        finalCustomization.selectedZodiacCharmId = '';
+      }
+    }
+    if (customizerMode === 'couple' && finalCustomization.comboId === 'mirror_combo') {
+      if (finalCustomization.letteringStyle2) {
+        finalCustomization.selectedZodiacCharmId2 = '';
+      }
+    }
+
     const newCartItem: CartItem = {
       id: `${selectedProduct.id}-${Date.now()}`,
       product: selectedProduct,
-      customization: { ...customization },
+      customization: finalCustomization,
       finalPrice,
-      quantity: 1,
+      quantity: qty,
     };
 
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'add_to_cart', {
         currency: 'VND',
-        value: finalPrice,
+        value: finalPrice * qty,
         items: [{
           item_id: selectedProduct.id,
           item_name: selectedProduct.name,
           price: finalPrice,
-          quantity: 1
+          quantity: qty
         }]
       });
     }
@@ -340,17 +491,32 @@ export default function App() {
     triggerAlert(lang === 'vi' ? 'Đã thêm nhanh sản phẩm vào giỏ hàng!' : 'Quickly added item to bag!');
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = (qty: number = 1) => {
     const finalPrice = calculateLivePrice();
+    
+    // Enforce mirror exclusivity rule (cannot have both charm and text)
+    const finalCustomization = { ...customization };
+    if (selectedProduct.category === 'mirror') {
+      if (finalCustomization.letteringStyle) {
+        finalCustomization.selectedZodiacCharmId = '';
+      }
+    }
+    if (customizerMode === 'couple' && finalCustomization.comboId === 'mirror_combo') {
+      if (finalCustomization.letteringStyle2) {
+        finalCustomization.selectedZodiacCharmId2 = '';
+      }
+    }
+
     const newCartItem: CartItem = {
       id: `${selectedProduct.id}-${Date.now()}`,
       product: selectedProduct,
-      customization: { ...customization },
+      customization: finalCustomization,
       finalPrice,
-      quantity: 1,
+      quantity: qty,
     };
 
-    setCart((prevCart) => [...prevCart, newCartItem]);
+    setCart([newCartItem]);
+    setCheckoutOrigin(currentView);
     setCurrentView('checkout');
     setIsCartOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -370,7 +536,7 @@ export default function App() {
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail || !/^\S+@\S+\.\S+$/.test(newsletterEmail)) {
+    if (!newsletterEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newsletterEmail)) {
        setNewsletterStatus('error');
        setNewsletterMsg(lang === 'vi' ? 'Email không hợp lệ' : 'Invalid email format');
        return;
@@ -399,19 +565,44 @@ export default function App() {
 
   // Navigation handlers
   const handleBackToShop = () => {
-    setCurrentView('shop');
+    if (customizerBackState) {
+      if (customizerBackState.elementId) {
+        setSelectedElementId(customizerBackState.elementId);
+      }
+      setCurrentView(customizerBackState.view as any);
+    } else {
+      setCurrentView('shop');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (!isInventoryLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#00687A]" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between bg-transparent relative">
+      {/* Global Background Pattern at the very bottom */}
+      <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1d210243f851f1f56d6a41ba5c73144ff8636c8f/Des276%20(1000%20x%20500%20px).png" alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none -z-50" referrerPolicy="no-referrer"  loading="lazy" />
+      
+      {/* Warm beige overlay on top of the pattern */}
+      <div className="fixed inset-0 w-full h-full bg-[#FBF5F2]/40 pointer-events-none -z-40" />
       
       {/* Brand Header */}
       <Navbar 
         cart={cart}
         currentView={currentView}
         onNavigate={(view) => {
-          setCurrentView(view);
+          if (view === 'shop') {
+            setShopFilter('all');
+            setCurrentView('shop');
+          } else {
+            setCurrentView(view);
+          }
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onNavigateElement={(id) => {
@@ -454,7 +645,13 @@ export default function App() {
             }}
             onNavigateElement={(id) => {
               setSelectedElementId(id);
-              setCurrentView('element');
+              setCurrentView('collection_cham_than');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateCollection={(collectionId) => {
+              if (collectionId === 'collection-01') setCurrentView('collection_cham_toi');
+              else if (collectionId === 'collection-02') setCurrentView('collection_cham_doi');
+              else if (collectionId === 'collection-03') setCurrentView('collection_cham_than');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateAbout={() => {
@@ -463,6 +660,165 @@ export default function App() {
             }}
             onNavigateMaterials={() => {
               setCurrentView('materials');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToChamToi={(index) => {
+              setChamToiInitialIndex(index);
+              setChamToiInitialProductId(undefined); // Reset for clips
+              setCurrentView('collection_cham_toi');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToChamToiGuong={() => {
+              setChamToiInitialIndex(0); // Embossed
+              setChamToiInitialProductId('guong');
+              setCurrentView('collection_cham_toi');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* VIEW: COLLECTION LANDING */}
+        {currentView === 'collection_cham_than' && (
+          <CollectionLanding
+            lang={lang}
+            initialElementId={selectedElementId}
+            onNavigateCustomizer={(elementId, productId) => {
+              setCustomizerMode('charm-only');
+              const product = PRODUCTS.find(p => p.id === productId);
+              if (product) setSelectedProduct(product);
+              
+              setCustomization({
+                productId: product ? product.id : 'kep-1',
+                element: getAvailableElement(product?.category || 'clip-1', elementId.toUpperCase() as ElementType),
+                baseStyle: 'crystal',
+                customType: 'zodiac',
+                text: '',
+                letteringStyle: undefined,
+                textColor: '#FFFFFF',
+                selectedZodiacCharmId: `zodiac-${elementId.toLowerCase()}`,
+                selectedStickerIds: [],
+              });
+              setCustomizerBackState({
+                view: 'collection_cham_than',
+                elementId: elementId.toLowerCase()
+              });
+              setCurrentView('customizer');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* VIEW: COLLECTION CHAM TOI */}
+        {currentView === 'collection_cham_toi' && (
+          <CollectionChamToi
+            lang={lang}
+            initialActiveIndex={chamToiInitialIndex}
+            initialSelectedProductId={chamToiInitialProductId}
+            onNavigateCustomizer={(fontId, productId) => {
+              const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
+              setSelectedProduct(product);
+              setCustomization({
+                productId: productId,
+                element: getAvailableElement(product.category, 'HOA'),
+                baseStyle: 'crystal',
+                customType: 'zodiac',
+                text: 'CHAM',
+                letteringStyle: fontId as 'sticker' | 'embossed',
+                textStyleOption: fontId === 'sticker' ? 'silver' : 'white',
+                textColor: '#FFFFFF',
+                selectedZodiacCharmId: '',
+                selectedStickerIds: [],
+              });
+              setCustomizerMode('font-only');
+              setCustomizerBackState({
+                view: 'collection_cham_toi'
+              });
+              setCurrentView('customizer');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* VIEW: COLLECTION CHAM DOI */}
+        {currentView === 'collection_cham_doi' && (
+          <CollectionChamDoi
+            lang={lang}
+            onNavigateCustomizer={(styleId, productId) => {
+              setCustomizerMode('double-sided');
+              
+              const product = PRODUCTS.find(p => p.id === productId);
+              if (product) setSelectedProduct(product);
+              
+              const initSelection = getInitialCharmSelection(product?.category || 'clip-1', 'KIM');
+              
+              setCustomization({
+                productId: product ? product.id : productId,
+                element: initSelection.element,
+                baseStyle: 'crystal',
+                customType: 'zodiac',
+                text: 'CHAM',
+                letteringStyle: 'embossed',
+                textStyleOption: 'white',
+                textColor: '#FFFFFF',
+                selectedZodiacCharmId: initSelection.selectedZodiacCharmId,
+                selectedStickerIds: [],
+                text2: 'CHAM',
+                letteringStyle2: 'embossed',
+                textStyleOption2: 'white',
+                selectedZodiacCharmId2: initSelection.selectedZodiacCharmId,
+                selectedStickerIds2: []
+              });
+              
+              setCustomizerBackState({
+                view: 'collection_cham_doi'
+              });
+              setCurrentView('customizer');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* VIEW: COLLECTION COMBO */}
+        {currentView === 'collection_combo' as any && (
+          <CollectionCombo
+            lang={lang}
+            onNavigateCustomizer={(comboId, clipStyleId) => {
+              setCustomizerMode('couple');
+              
+              // Find the selected base product
+              const defaultProductId = clipStyleId; // 'kep-1' or 'kep-2'
+              const product = PRODUCTS.find(p => p.id === defaultProductId);
+              if (product) setSelectedProduct(product);
+              
+              const initSelection = getInitialCharmSelection(product?.category || 'clip-1', 'KIM');
+              const partnerCat = comboId === 'mirror_combo' ? 'mirror' : (product?.category || 'clip-1');
+              const partnerInitSelection = getInitialCharmSelection(partnerCat, 'KIM');
+              
+              setActiveTab(comboId === 'mirror_combo' ? 'p2' : 'p1');
+
+              setCustomization({
+                productId: product ? product.id : defaultProductId,
+                element: initSelection.element,
+                partnerElement: partnerInitSelection.element,
+                comboId: comboId as 'couple_combo' | 'mirror_combo',
+                baseStyle: 'crystal',
+                customType: 'zodiac',
+                text: '',
+                letteringStyle: undefined,
+                textColor: '#FFFFFF',
+                selectedZodiacCharmId: initSelection.selectedZodiacCharmId,
+                selectedStickerIds: [],
+                text2: '',
+                letteringStyle2: undefined,
+                selectedZodiacCharmId2: partnerInitSelection.selectedZodiacCharmId,
+                selectedStickerIds2: [],
+                sunlightMode: false,
+              });
+              
+              setCustomizerBackState({
+                view: 'collection_combo'
+              });
+              setCurrentView('customizer');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
@@ -478,8 +834,27 @@ export default function App() {
               const el = document.getElementById('encyclopedia-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            onEnterShop={() => {
-              setCurrentView('shop');
+            onEnterShop={(productId) => {
+              setCustomizerMode('charm-only');
+              const product = PRODUCTS.find(p => p.id === productId);
+              if (product) setSelectedProduct(product);
+              
+              setCustomization({
+                productId: product ? product.id : 'kep-1',
+                element: getAvailableElement(product?.category || 'clip-1', selectedElementId.toUpperCase() as ElementType),
+                baseStyle: 'crystal',
+                customType: 'zodiac',
+                text: '',
+                letteringStyle: undefined,
+                textColor: '#FFFFFF',
+                selectedZodiacCharmId: `zodiac-${selectedElementId.toLowerCase()}`,
+                selectedStickerIds: [],
+              });
+              setCustomizerBackState({
+                view: 'element',
+                elementId: selectedElementId.toLowerCase()
+              });
+              setCurrentView('customizer');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
@@ -507,7 +882,11 @@ export default function App() {
             lang={lang} 
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
-            recentlyViewedIds={recentlyViewedIds}
+            initialFilter={shopFilter}
+            onNavigate={(view) => {
+              setCurrentView(view as any);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
 
@@ -524,6 +903,10 @@ export default function App() {
                   customization={customization}
                   selectedCharms={getAllSelectedCharms()}
                   onUpdateCustomization={(updater) => setCustomization(prev => ({ ...prev, ...updater }))}
+                  mode={customizerMode}
+                  lang={lang}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
                 />
               </div>
 
@@ -537,94 +920,16 @@ export default function App() {
                   onAddToCart={handleAddToCart}
                   onBuyNow={handleBuyNow}
                   totalPrice={livePrice}
+                  basePrice={calculateBasePrice()}
                   lang={lang}
+                  mode={customizerMode}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
                 />
               </div>
 
             </div>
 
-            {/* Other Also Viewed Section */}
-            <div className="w-full relative mt-8">
-              <div className="flex justify-center flex-wrap gap-4 mb-8">
-                <button 
-                  onClick={() => setSuggestionTab('supporters')}
-                  className={`px-6 py-2.5 rounded-full border shadow-sm text-sm font-bold uppercase tracking-wider transition-all duration-300
-                    ${suggestionTab === 'supporters' ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'}`}
-                >
-                  {lang === 'vi' ? 'SẢN PHẨM KHÁC' : 'SUPPORTERS ALSO VIEWED'}
-                </button>
-                <button 
-                  onClick={() => setSuggestionTab('recent')}
-                  className={`px-6 py-2.5 rounded-full border shadow-sm text-sm font-bold uppercase tracking-wider transition-all duration-300
-                    ${suggestionTab === 'recent' ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'}`}
-                >
-                  {lang === 'vi' ? 'ĐÃ XEM GẦN ĐÂY' : 'RECENTLY VIEWED'}
-                </button>
-              </div>
-              
-              <div className="relative group/carousel">
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 no-scrollbar min-h-[350px]">
-                  {(() => {
-                    const displayedSuggestedProducts = suggestionTab === 'recent'
-                      ? recentlyViewedIds.map(id => PRODUCTS.find(p => p.id === id)).filter((p): p is Product => Boolean(p) && p.id !== selectedProduct.id)
-                      : PRODUCTS.filter(p => p.id !== selectedProduct.id).slice(0, 6);
-                    
-                    if (displayedSuggestedProducts.length === 0) {
-                       return (
-                         <div className="w-full flex items-center justify-center p-12 text-gray-500 font-medium text-sm">
-                           {lang === 'vi' ? 'Chưa có sản phẩm nào được xem gần đây.' : 'No recently viewed items yet.'}
-                         </div>
-                       );
-                    }
-
-                    return displayedSuggestedProducts.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="group cursor-pointer flex flex-col relative shrink-0 w-[260px] snap-center"
-                        onClick={() => {
-                          handleSelectProduct(item);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                      >
-                        <div className="relative aspect-[4/5] bg-[#F1F1F1] rounded-xl overflow-hidden mb-3">
-                          <img 
-                            src={item.images && Object.values(item.images).length > 0 ? (item.images['none'] || Object.values(item.images)[0]) : undefined}
-                            alt={item.name}
-                            className="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 pointer-events-none group-hover:scale-105"
-                          />
-                          <button 
-                            className="absolute top-3 right-3 p-1.5 transition-colors z-10 hover:opacity-75"
-                            onClick={(e) => { e.stopPropagation(); handleToggleWishlist(item.id); }}
-                          >
-                             <Heart className={`w-6 h-6 ${wishlistIds.includes(item.id) ? 'fill-[#990000] text-[#990000]' : 'text-gray-400'}`} strokeWidth={2} />
-                          </button>
-                          <button
-                            className="absolute bottom-3 right-3 w-8 h-8 rounded-sm bg-[#990000] text-white flex items-center justify-center hover:bg-[#7a0000] transition-colors z-10"
-                            onClick={(e) => { e.stopPropagation(); handleSelectProduct(item); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          >
-                             <Plus className="w-5 h-5" />
-                          </button>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <h3 className="text-[15px] font-medium text-gray-900 leading-snug mb-1 group-hover:underline">
-                            {lang === 'vi' ? item.vietnameseName : item.name}
-                          </h3>
-                          <span className="text-[15px] font-bold text-gray-900">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.basePrice)}
-                          </span>
-                        </div>
-                      </div>
-                    ));
-                  })()}
-                </div>
-                
-                {/* Visual right arrow overlay */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity pointer-events-none z-10 hidden md:flex">
-                   <ChevronRight className="w-5 h-5 text-gray-800" />
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -667,7 +972,7 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToShop={() => {
-              setCurrentView('shop');
+              setCurrentView(checkoutOrigin as any);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToLogin={() => {
@@ -676,6 +981,8 @@ export default function App() {
             }}
             onCheckoutSuccess={() => {
               handleClearCart();
+              setGlobalDiscountCode('');
+              setIsGlobalDiscountApplied(false);
               setCurrentView('home');
               triggerAlert(lang === 'vi' ? 'Đặt hàng thành công!' : 'Order placed successfully!');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -696,6 +1003,7 @@ export default function App() {
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
             onNavigateToCheckout={() => {
+              setCheckoutOrigin('home');
               setCurrentView('checkout');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
@@ -768,6 +1076,7 @@ export default function App() {
            window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onNavigateToCheckout={() => {
+           setCheckoutOrigin('home');
            setCurrentView('checkout');
            setIsCartOpen(false);
            window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -787,53 +1096,60 @@ export default function App() {
       {/* Style footer branding */}
       <footer className="bg-[#00687A] text-[#FBF5F2] pt-16 pb-8 mt-16 shadow-inner font-sans relative overflow-hidden">
         {/* Subtle decorative background */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url('https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url('https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 pb-12 border-b border-white/10 items-start">
             
             {/* Left Column: Logo, Socials & Support */}
             <div className="flex flex-col gap-10 lg:col-span-5 pt-2">
-              <div className="flex flex-col items-center lg:items-start gap-8">
+              <div className="flex flex-col items-center gap-6">
                 <button 
                   type="button"
                   onClick={() => { setCurrentView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="group cursor-pointer hover:opacity-90 transition-opacity flex justify-center lg:justify-start w-full"
+                  className="group cursor-pointer hover:opacity-90 transition-opacity flex justify-center w-full"
                 >
                   <img 
-                    src="https://raw.githubusercontent.com/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project/725e9664b9c72f9af9fee9399adbfe17e52a2f2f/LOGO%20.png" 
+                    src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@4f54e36f4edb0f4fb21768cae473d0fbcf33c436/LOGO%20.png" 
                     alt="Chạm Logo" 
-                    className="h-32 sm:h-40 md:h-44 w-auto object-contain drop-shadow-2xl brightness-0 invert"
+                    className="h-32 sm:h-40 md:h-44 w-auto object-contain drop-shadow-2xl"
                     referrerPolicy="no-referrer"
-                  />
+                   loading="lazy" />
                 </button>
-                <div className="flex items-center justify-center lg:justify-start gap-4 text-white w-full">
-                  <a href="#" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
+                <div className="flex items-center justify-center gap-4 text-white w-full -mt-2">
+                  <a href="https://www.facebook.com/profile.php?id=61591049410705" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
                     <Facebook className="w-4 h-4" />
                   </a>
-                  <a href="#" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
-                    <Instagram className="w-4 h-4" />
+                  <a href="https://www.tiktok.com/@cham.elements?_r=1&_t=ZS-97WdJdLmO6H" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.46-.23-2.61.88-5.26 2.87-6.87 1.4-.95 3.12-1.36 4.79-1.12.02 1.25-.01 2.49.02 3.73-.78-.1-1.57-.1-2.32.18-.75.29-1.35.88-1.63 1.63-.3.8-.26 1.72.16 2.49.46.85 1.34 1.45 2.3 1.51 1.4.11 2.8-.57 3.51-1.74.37-.62.59-1.35.59-2.09V.02h4.52z"/></svg>
                   </a>
                 </div>
               </div>
 
               {/* Customer Support */}
-              <div className="flex flex-col gap-5 text-sm text-center lg:text-left">
-                 <h3 className="font-black text-white uppercase text-base tracking-wider mb-2">
-                   {lang === 'vi' ? 'Hỗ Trợ Khách Hàng' : 'Support'}
-                 </h3>
-                 <div className="flex flex-col gap-3 font-medium text-white/90 text-xs">
-                   <p className="flex flex-wrap items-center justify-center lg:justify-start gap-1">
-                     <span className="opacity-70 uppercase tracking-wider font-bold">Hotline:</span> 
-                     <a href="tel:0912133025" className="hover:text-white transition cursor-pointer ml-1 mr-2">0912133025</a>
-                     <span className="hidden lg:inline mx-1">|</span>
-                     <span className="opacity-70 uppercase tracking-wider font-bold ml-2">{lang === 'vi' ? 'Bán hàng B2B:' : 'B2B Sales:'}</span> 
-                     <a href="mailto:b2b@cham.vn" className="hover:text-white transition cursor-pointer ml-1">b2b@cham.vn</a>
+              <div className="flex flex-col gap-4 text-sm text-left w-full lg:max-w-sm mt-4">
+                 <div className="flex items-start gap-4 text-white">
+                   <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                   <p className="font-bold uppercase leading-tight tracking-wide text-sm">
+                     UEH - Cơ sở B - 279 Nguyễn Tri Phương, Phường Diên Hồng, TP.HCM
                    </p>
-                   <p className="flex items-center justify-center lg:justify-start gap-1">
-                     <span className="opacity-70 uppercase tracking-wider font-bold">Email:</span> 
-                     <a href="mailto:cham.customerservice@gmail.com" className="hover:text-white transition cursor-pointer ml-1 break-all">cham.customerservice@gmail.com</a>
-                   </p>
+                 </div>
+                 <div className="flex items-start gap-4 text-white">
+                   <Phone className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                   <div className="flex flex-col gap-1">
+                     <a href="tel:0918620232" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
+                       0918 620 232 (Ms. Hà Anh)
+                     </a>
+                     <a href="tel:0365092373" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
+                       0365 092 373 (Mr. Anh Khôi)
+                     </a>
+                   </div>
+                 </div>
+                 <div className="flex items-center gap-4 text-white">
+                   <Mail className="w-6 h-6 flex-shrink-0" />
+                   <a href="mailto:cham.elements@gmail.com" className="font-bold tracking-wide text-sm hover:text-gray-200 transition">
+                     cham.elements@gmail.com
+                   </a>
                  </div>
               </div>
             </div>
@@ -856,9 +1172,6 @@ export default function App() {
                     <button onClick={() => { setCurrentView('return_policy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Chính Sách Đổi Trả' : 'Returns & Refunds'}
                     </button>
-                    <button onClick={() => { setCurrentView('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
-                      {lang === 'vi' ? 'Đánh Giá' : 'Reviews'}
-                    </button>
                  </div>
 
                  {/* Câu Chuyện */}
@@ -872,9 +1185,6 @@ export default function App() {
                     <button onClick={() => { setCurrentView('vision'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Tầm Nhìn' : 'Vision'}
                     </button>
-                    <button onClick={() => { setCurrentView('element'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
-                      {lang === 'vi' ? 'Bản Mệnh' : 'Elements'}
-                    </button>
                  </div>
               </div>
 
@@ -885,20 +1195,19 @@ export default function App() {
                     <h3 className="font-black text-white uppercase text-base tracking-wider mb-0 lg:mb-2">
                       {lang === 'vi' ? 'Thanh Toán' : 'Payment'}
                     </h3>
-                    <div className="grid grid-cols-2 gap-3 w-full lg:max-w-[240px] justify-center lg:justify-start">
-                      <div className="bg-white/95 px-3 py-3 rounded-lg flex items-center justify-center shadow-md h-14 hover:scale-105 transition-transform overflow-hidden cursor-default">
-                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" className="h-full w-full object-contain" referrerPolicy="no-referrer" />
-                      </div>
-                      <div className="bg-white/95 px-3 py-3 rounded-lg flex items-center justify-center shadow-md h-14 hover:scale-105 transition-transform overflow-hidden cursor-default">
-                        <img src="https://vnpay.vn/s1/vnpay/asset/images/logo-vnpay-text.svg" alt="VNPay" className="h-full w-full object-contain" referrerPolicy="no-referrer" />
-                      </div>
-                      <div className="bg-white/95 px-3 py-3 rounded-lg flex items-center justify-center shadow-md h-14 hover:scale-105 transition-transform overflow-hidden cursor-default">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-full w-full object-contain" referrerPolicy="no-referrer" />
-                      </div>
-                      <div className="bg-white/95 px-3 py-3 rounded-lg flex items-center justify-center shadow-md h-14 hover:scale-105 transition-transform cursor-default">
-                        <div className="font-black text-[#00687A] text-[13px] uppercase tracking-wider text-center leading-tight">
-                          COD
+                    <div className="flex flex-col gap-2 w-full lg:max-w-[280px] justify-center lg:justify-start">
+                      {/* Row 1: Cash and MoMo */}
+                      <div className="flex gap-2 w-full">
+                        <div className="h-10 flex-1 bg-white rounded-xl border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-default">
+                          <span className="font-black text-[#00687A] text-xs uppercase tracking-wider">CASH</span>
                         </div>
+                        <div className="h-10 flex-1 bg-white rounded-xl border border-gray-200 flex items-center justify-center p-2 overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-default">
+                          <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="h-full w-full object-contain" referrerPolicy="no-referrer"  loading="lazy" />
+                        </div>
+                      </div>
+                      {/* Row 2: VietQR */}
+                      <div className="h-10 w-full bg-white rounded-xl border border-gray-200 flex items-center justify-center p-2 overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-default">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="h-full object-contain max-w-[80px]" referrerPolicy="no-referrer"  loading="lazy" />
                       </div>
                     </div>
                  </div>

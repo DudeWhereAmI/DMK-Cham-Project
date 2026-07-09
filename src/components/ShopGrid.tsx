@@ -1,338 +1,346 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Product, ElementType } from '../types';
-import { PRODUCTS, ELEMENTS } from '../data';
-import { Heart, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PRODUCTS, ELEMENTS, getProductBasePrice } from '../data';
+import { checkIsSoldOut } from '../lib/inventory';
+import { Heart, Plus, ChevronDown } from 'lucide-react';
 import dmkBrandElement1 from '../assets/dmk_brand_element_1.svg';
 import mirrorVintage from '../assets/mirror_vintage.svg';
 
 interface ShopGridProps {
-  onSelectProduct: (product: Product, elementOverride?: ElementType) => void;
+  onSelectProduct: (product: Product, elementOverride?: ElementType, customizerMode?: 'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided') => void;
   lang: 'vi' | 'en';
   wishlistIds?: string[];
   onToggleWishlist?: (productId: string) => void;
-  recentlyViewedIds?: string[];
+  initialFilter?: string;
+  onNavigate?: (view: string) => void;
 }
 
-const ProductCarousel = ({ 
-  title, 
-  items, 
+export const ShopGrid: React.FC<ShopGridProps> = ({ 
+  onSelectProduct, 
   lang, 
-  wishlistIds, 
-  onToggleWishlist, 
-  onProductClick 
-}: { 
-  title: string, 
-  items: { product: Product, elementOverride?: ElementType, titleOverride?: string }[],
-  lang: 'vi' | 'en',
-  wishlistIds: string[],
-  onToggleWishlist?: (productId: string) => void,
-  onProductClick: (prod: Product, elementOverride?: ElementType) => void
+  wishlistIds = [], 
+  onToggleWishlist,
+  initialFilter = 'all',
+  onNavigate
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>(initialFilter);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      const scrollable = scrollWidth - clientWidth;
-      const progress = scrollable > 0 ? scrollLeft / scrollable : 0;
-      setScrollProgress(progress);
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollable - 10);
+  // Filters mapping
+  const FILTER_OPTIONS = [
+    {
+      title: lang === 'vi' ? 'BỘ SƯU TẬP' : 'COLLECTIONS',
+      options: [
+        { id: 'cham_toi', label: lang === 'vi' ? 'Chạm Tôi' : 'Touch Me' },
+        { id: 'cham_than', label: lang === 'vi' ? 'Chạm Thần' : 'Touch Spirit' },
+        { id: 'cham_doi', label: lang === 'vi' ? 'Chạm Đôi' : 'Touch Us' },
+      ]
+    },
+    {
+      title: lang === 'vi' ? 'COMBO' : 'COMBO',
+      options: [
+        { id: 'combo_guong', label: lang === 'vi' ? 'Combo Gương' : 'Mirror Combo' },
+        { id: 'combo_doi', label: lang === 'vi' ? 'Combo Đôi' : 'Couple Combo' },
+      ]
     }
+  ];
+
+  interface DisplayItem {
+    product: Product;
+    elementOverride?: ElementType;
+    titleOverride?: string;
+    imageOverride?: string;
+    customizerMode?: 'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided';
+  }
+
+  // Helper to get filtered products
+  const getFilteredProducts = (): DisplayItem[] => {
+    let baseProducts = PRODUCTS.filter(p => p.id !== 'limited' && p.id !== 'kep-3');
+
+    const chamThanItems: DisplayItem[] = ELEMENTS.map(el => ({
+      product: PRODUCTS[0],
+      elementOverride: el.type,
+      titleOverride: lang === 'vi' ? el.nameVi : el.nameEn,
+      imageOverride: el.guardianImg,
+      customizerMode: 'charm-only'
+    }));
+
+    const comboGuongItems: DisplayItem[] = baseProducts.filter(p => p.category === 'mirror').map(p => ({ product: p, customizerMode: 'couple' }));
+
+    const comboDoiItems: DisplayItem[] = [
+      { product: PRODUCTS[0], titleOverride: lang === 'vi' ? 'Combo Ta Có Nhau (Kim - Mộc)' : 'Couple Combo (Metal - Wood)', customizerMode: 'couple' },
+      { product: PRODUCTS[1], titleOverride: lang === 'vi' ? 'Combo Ta Có Nhau (Thủy - Hỏa)' : 'Couple Combo (Water - Fire)', customizerMode: 'couple' }
+    ];
+
+    const chamDoiItems: DisplayItem[] = [
+      { product: PRODUCTS[0], titleOverride: lang === 'vi' ? 'Kẹp Chạm Đôi Tiêu Chuẩn' : 'Standard Double Touch', customizerMode: 'double-sided' },
+      { product: PRODUCTS[1], titleOverride: lang === 'vi' ? 'Kẹp Chạm Đôi Cao Cấp' : 'Premium Double Touch', customizerMode: 'double-sided' }
+    ];
+
+    const chamToiItems: DisplayItem[] = baseProducts.map(p => ({ product: p, customizerMode: 'font-only' }));
+
+    if (activeFilter === 'cham_than') return chamThanItems;
+    if (activeFilter === 'combo_guong') return comboGuongItems;
+    if (activeFilter === 'combo_doi') return comboDoiItems;
+    if (activeFilter === 'cham_doi') return chamDoiItems;
+    if (activeFilter === 'cham_toi') return chamToiItems;
+
+    // Default 'all' - combine everything
+    return [
+      ...chamToiItems,
+      ...chamThanItems,
+      ...chamDoiItems,
+      ...comboDoiItems,
+      ...comboGuongItems
+    ];
   };
 
-  useEffect(() => {
-    handleScroll();
-    window.addEventListener('resize', handleScroll);
-    return () => window.removeEventListener('resize', handleScroll);
-  }, [items]);
+  const displayItems = getFilteredProducts();
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const { clientWidth } = scrollRef.current;
-      const scrollAmount = direction === 'left' ? -clientWidth : clientWidth;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
+  const handleProductClick = (prod: Product, elementOverride?: ElementType, customizerMode?: 'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided') => {
+    onSelectProduct(prod, elementOverride, customizerMode);
   };
 
-  const updateScrollFromPointer = (e: React.PointerEvent | PointerEvent) => {
-    if (!progressBarRef.current || !scrollRef.current) return;
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    const percentage = x / rect.width;
-    
-    const { scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    
-    scrollRef.current.scrollLeft = percentage * maxScroll;
-  };
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    updateScrollFromPointer(e);
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      updateScrollFromPointer(e);
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    setIsDragging(false);
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  };
-
-  const [isDraggingContainer, setIsDraggingContainer] = useState(false);
-  const [dragged, setDragged] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeftState, setScrollLeftState] = useState(0);
-
-  const handleContainerPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Only drag with primary button (left click)
-    if (e.button !== 0) return;
-    setIsDraggingContainer(true);
-    setDragged(false);
-    setStartX(e.pageX - e.currentTarget.offsetLeft);
-    setScrollLeftState(e.currentTarget.scrollLeft);
-  };
-
-  const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingContainer) return;
-    e.preventDefault();
-    const x = e.pageX - e.currentTarget.offsetLeft;
-    const walk = (x - startX) * 1.5; // Scroll speed multiplier
-    if (Math.abs(walk) > 5) {
-      setDragged(true);
-    }
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollLeftState - walk;
-    }
-  };
-
-  const handleContainerPointerUp = () => {
-    setIsDraggingContainer(false);
-  };
-
-  const handleContainerPointerLeave = () => {
-    setIsDraggingContainer(false);
-  };
-
-  const renderProduct = (item: { product: Product, elementOverride?: ElementType, titleOverride?: string, imageOverride?: string }, index: number) => {
-    const { product: prod, elementOverride, titleOverride, imageOverride } = item;
-    const isWished = wishlistIds.includes(prod.id);
-    const transName = titleOverride || (lang === 'vi' ? prod.vietnameseName : prod.name);
-    
-    // Determine the image to show
-    let imgSrc = prod.images?.['none'] 
-      ? prod.images['none'] 
-      : (prod.category.startsWith('clip') || prod.category === 'limited' ? dmkBrandElement1 : mirrorVintage);
+  return (
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 bg-white min-h-[80vh]">
       
-    if (elementOverride && prod.images?.[elementOverride]) {
-      imgSrc = prod.images[elementOverride];
-    }
-    
-    if (imageOverride) {
-      imgSrc = imageOverride;
-    }
-
-    return (
-      <div 
-        key={`${prod.id}-${elementOverride || 'default'}-${index}`}
-        className="group relative flex flex-col cursor-pointer w-[240px] md:w-[280px] shrink-0 min-w-[240px] md:min-w-[280px] max-w-[240px] md:max-w-[280px] snap-start"
-        onClickCapture={(e) => {
-          if (dragged) {
-            e.stopPropagation();
-            e.preventDefault();
+      {/* Breadcrumbs */}
+      <div className="w-full text-[10px] md:text-xs font-bold tracking-widest uppercase text-gray-500 mb-8 flex items-center gap-2">
+        <span 
+          className="cursor-pointer hover:text-gray-900 transition-colors"
+          onClick={() => onNavigate && onNavigate('home')}
+        >
+          {lang === 'vi' ? 'TRANG CHỦ' : 'HOME'}
+        </span>
+        <span>/</span>
+        <span 
+          className="cursor-pointer hover:text-gray-900 transition-colors"
+          onClick={() => setActiveFilter('all')}
+        >
+          {lang === 'vi' ? 'SẢN PHẨM' : 'SHOP'}
+        </span>
+        <span>/</span>
+        <span className="text-gray-900">
+          {activeFilter === 'all' 
+            ? (lang === 'vi' ? 'Tất Cả Sản Phẩm' : 'All Products')
+            : FILTER_OPTIONS.flatMap(g => g.options).find(o => o.id === activeFilter)?.label
           }
-        }}
-        onClick={() => {
-          if (!dragged) onProductClick(prod, elementOverride);
-        }}
-      >
-        <div className="bg-[#F5F5F5] rounded-xl aspect-[4/5] relative overflow-hidden flex items-center justify-center mb-3">
-          {/* Wishlist Button */}
-          <button 
-            type="button" 
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!dragged && onToggleWishlist) onToggleWishlist(prod.id);
-            }}
-            className="absolute top-4 right-4 z-10 p-1"
-          >
-            <Heart 
-              className={`w-5 h-5 transition-colors ${isWished ? 'fill-[#990000] text-[#990000]' : 'text-[#990000]'}`} 
-            />
-          </button>
+        </span>
+      </div>
 
-          {/* Product Image */}
-          <div className="w-full h-full p-4 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-            <img 
-              src={imgSrc} 
-              className="w-full h-full object-contain mix-blend-multiply select-none" 
-              alt={transName}
-              referrerPolicy="no-referrer"
-              draggable={false}
-            />
+      <div className="flex flex-col lg:flex-row gap-8 w-full">
+        {/* Sidebar Filters */}
+        <div className="w-full lg:w-56 shrink-0 flex flex-col gap-6">
+          <div className="hidden lg:flex flex-col gap-6 sticky top-24">
+            <h3 className="text-sm font-black uppercase tracking-widest text-[#00687A] border-b border-[#00687A]/10 pb-3">
+              {lang === 'vi' ? 'LỌC SẢN PHẨM' : 'FILTER PRODUCTS'}
+            </h3>
+            
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`text-left text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                activeFilter === 'all' ? 'text-[#E28C9A] translate-x-2' : 'text-gray-500 hover:text-[#00687A] hover:translate-x-1'
+              }`}
+            >
+              {lang === 'vi' ? 'Tất Cả Sản Phẩm' : 'All Products'}
+            </button>
+
+            {FILTER_OPTIONS.map(group => (
+              <div key={group.title} className="flex flex-col gap-3">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-2">{group.title}</h4>
+                <div className="flex flex-col gap-3 pl-3 border-l-2 border-gray-100">
+                  {group.options.map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setActiveFilter(opt.id)}
+                      className={`text-left text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                        activeFilter === opt.id ? 'text-[#E28C9A] translate-x-2' : 'text-gray-500 hover:text-[#00687A] hover:translate-x-1'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Add/Customize Button */}
+          {/* Mobile Filter Toggle */}
           <button 
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!dragged) onProductClick(prod, elementOverride);
-            }}
-            className="absolute bottom-4 right-4 w-7 h-7 bg-[#990000] rounded-md flex items-center justify-center text-white md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+            className="lg:hidden w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
-            <Plus className="w-5 h-5" />
+            <span className="font-bold text-sm uppercase tracking-widest text-[#00687A]">
+              {lang === 'vi' ? 'Lọc Sản Phẩm' : 'Filter Products'}
+            </span>
+            <ChevronDown className={`w-5 h-5 text-[#00687A] transition-transform ${isSidebarOpen ? 'rotate-180' : ''}`} />
           </button>
+
+          {/* Mobile Filter Dropdown */}
+          {isSidebarOpen && (
+            <div className="lg:hidden flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+              <button
+                onClick={() => { setActiveFilter('all'); setIsSidebarOpen(false); }}
+                className={`text-left text-xs font-bold uppercase tracking-wider ${
+                  activeFilter === 'all' ? 'text-[#E28C9A]' : 'text-gray-600'
+                }`}
+              >
+                {lang === 'vi' ? 'Tất Cả Sản Phẩm' : 'All Products'}
+              </button>
+              {FILTER_OPTIONS.map(group => (
+                <div key={`mobile-${group.title}`} className="flex flex-col gap-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-2">{group.title}</h4>
+                  <div className="flex flex-col gap-3 pl-3 border-l-2 border-gray-100">
+                    {group.options.map(opt => (
+                      <button
+                        key={`mobile-${opt.id}`}
+                        onClick={() => { setActiveFilter(opt.id); setIsSidebarOpen(false); }}
+                        className={`text-left text-xs font-bold uppercase tracking-wider ${
+                          activeFilter === opt.id ? 'text-[#E28C9A]' : 'text-gray-600'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Product Details */}
-        <div className="mt-1 pb-4">
-          <h4 className="text-sm text-gray-900 leading-snug line-clamp-2">
-            {transName}
-          </h4>
-          <p className="text-sm font-bold text-gray-900 mt-1 flex items-center gap-1">
-            <span className="text-[10px] underline translate-y-[-1px]">đ</span>
-            {new Intl.NumberFormat('vi-VN').format(prod.basePrice)}
-          </p>
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col gap-6 min-w-0">
+          
+          {/* Horizontal Filters (Pills) */}
+          <div className="w-full flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
+                activeFilter === 'all'
+                  ? 'bg-[#00687A] text-white border-[#00687A]'
+                  : 'bg-white text-gray-600 border-gray-200'
+              }`}
+            >
+              {lang === 'vi' ? 'TẤT CẢ' : 'ALL'}
+            </button>
+            {FILTER_OPTIONS.flatMap(g => g.options).map(opt => (
+              <button
+                key={`pill-${opt.id}`}
+                onClick={() => setActiveFilter(opt.id)}
+                className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
+                  activeFilter === opt.id
+                    ? 'bg-[#00687A] text-white border-[#00687A]'
+                    : 'bg-white text-gray-600 border-gray-200'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Master Carousel */}
+          <div className="w-full relative group/master">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 md:gap-8 pb-12 pt-4 no-scrollbar items-center px-2 md:px-6">
+            {displayItems.length === 0 && (
+              <div className="w-full py-20 flex flex-col items-center justify-center text-center opacity-50">
+                <p className="text-lg font-medium">{lang === 'vi' ? 'Không tìm thấy sản phẩm nào' : 'No products found'}</p>
+              </div>
+            )}
+            
+            {displayItems.map((item, index) => {
+              const { product: prod, elementOverride, titleOverride, imageOverride } = item;
+              const isWished = wishlistIds.includes(prod.id);
+              const transName = titleOverride || (lang === 'vi' ? prod.vietnameseName : prod.name);
+              
+              // Determine the image to show
+              let imgSrc = prod.images?.['none'] 
+                ? prod.images['none'] 
+                : (prod.category.startsWith('clip') || prod.category === 'limited' ? dmkBrandElement1 : mirrorVintage);
+                
+              if (elementOverride && prod.images?.[elementOverride]) {
+                imgSrc = prod.images[elementOverride];
+              }
+              if (imageOverride) {
+                imgSrc = imageOverride;
+              }
+
+              // Determine base price based on mirror MOC/THUY rule
+              const trueBasePrice = getProductBasePrice(prod.id, elementOverride || 'KIM');
+              
+              const isItemSoldOut = checkIsSoldOut(prod.category, elementOverride || 'KIM');
+
+              return (
+                <div 
+                  key={`${prod.id}-${elementOverride || 'default'}-${index}`}
+                  className="group cursor-pointer flex flex-col relative shrink-0 w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] snap-center"
+                  onClick={() => handleProductClick(prod, elementOverride)}
+                >
+                  <div className="relative aspect-[3/4] bg-[#F9F9F9] rounded-3xl overflow-hidden mb-6 shadow-sm border border-gray-100 group-hover:shadow-2xl transition-all duration-700 group-hover:-translate-y-2 flex items-center justify-center">
+                    {/* Organic circular beige highlight behind image */}
+                    <div className="absolute w-[200px] h-[200px] sm:w-[240px] sm:h-[240px] rounded-full bg-[#E6D9C5]/45 blur-2xl z-0 pointer-events-none" />
+
+                    <img 
+                      src={imgSrc}
+                      alt={transName}
+                      className={`w-full h-full object-contain p-8 mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-110 pointer-events-none drop-shadow-xl z-10 relative ${isItemSoldOut ? 'opacity-50 grayscale' : ''}`}
+                      referrerPolicy="no-referrer"
+                      draggable={false}
+                     loading="lazy" />
+                    
+                    {isItemSoldOut && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                        <div className="bg-red-600/90 text-white font-black text-sm md:text-lg tracking-[0.2em] px-4 py-2 transform -rotate-12 border-2 border-red-500 shadow-2xl backdrop-blur-sm">
+                          {lang === 'vi' ? 'HẾT HÀNG' : 'SOLD OUT'}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Add to Wishlist */}
+                    <button 
+                      type="button" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onToggleWishlist) onToggleWishlist(prod.id);
+                      }}
+                      className="absolute top-5 right-5 p-3 bg-white/80 backdrop-blur-md rounded-full shadow-sm transition-all z-10 hover:bg-white hover:scale-110"
+                    >
+                      <Heart 
+                        className={`w-5 h-5 transition-colors ${isWished ? 'fill-[#E28C9A] text-[#E28C9A]' : 'text-gray-400 hover:text-[#E28C9A]'}`} 
+                        strokeWidth={2} 
+                      />
+                    </button>
+                    
+                    {/* Hover Action Overlay */}
+                    <div className="absolute inset-x-0 bottom-8 flex justify-center translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-10">
+                      <button
+                        className="bg-[#00687A] text-white font-black text-xs uppercase tracking-widest px-8 py-4 rounded-full shadow-2xl hover:bg-[#00485A] hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
+                        onClick={(e) => { e.stopPropagation(); handleProductClick(prod, elementOverride, item.customizerMode); }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        {lang === 'vi' ? 'Thiết Kế Ngay' : 'Customize Now'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col items-center text-center px-4">
+                    <h3 className="text-lg md:text-xl font-black text-[#00687A] uppercase tracking-widest mb-3 transition-colors min-h-[48px] flex items-center">
+                      {transName}
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl font-black text-[#00687A] leading-none">
+                        {new Intl.NumberFormat('vi-VN').format(trueBasePrice)}
+                        <span className="text-sm underline ml-0.5 translate-y-[-2px] inline-block">đ</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
         </div>
       </div>
-    );
-  };
-
-  if (!items || items.length === 0) return null;
-
-  return (
-    <section className="relative w-full">
-      <div className="flex items-center justify-between mb-4 px-1">
-        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-        
-        {/* Navigation Arrows */}
-        <div className="flex gap-2">
-          <button 
-            onClick={() => scroll('left')} 
-            disabled={!canScrollLeft}
-            className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-800" />
-          </button>
-          <button 
-            onClick={() => scroll('right')} 
-            disabled={!canScrollRight}
-            className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-800" />
-          </button>
-        </div>
-      </div>
-      
-      {/* Scrollable Container */}
-      <div 
-        ref={scrollRef}
-        onScroll={handleScroll}
-        onPointerDown={handleContainerPointerDown}
-        onPointerMove={handleContainerPointerMove}
-        onPointerUp={handleContainerPointerUp}
-        onPointerLeave={handleContainerPointerLeave}
-        onPointerCancel={handleContainerPointerUp}
-        className={`flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 px-1 ${isDragging ? 'pointer-events-none' : ''} ${isDraggingContainer ? 'cursor-grabbing touch-none' : 'cursor-grab'} ${(isDragging || isDraggingContainer) ? '' : 'snap-x snap-mandatory'}`}
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {items.map((item, idx) => renderProduct(item, idx))}
-      </div>
-      
-      {/* Progress tracking bar */}
-      <div 
-        ref={progressBarRef}
-        className="mt-2 w-full max-w-md mx-auto h-2 bg-slate-200 rounded-full overflow-hidden cursor-pointer touch-none relative group"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        {/* Make hit area larger */}
-        <div className="absolute inset-x-0 -top-2 -bottom-2" />
-        <div 
-          className="h-full bg-[#990000] rounded-full transition-all duration-300 ease-out group-hover:bg-[#b30000]"
-          style={{ 
-            width: `${Math.max(10, scrollProgress * 100)}%`,
-            transition: isDragging ? 'none' : 'width 300ms ease-out' 
-          }}
-        />
-      </div>
-    </section>
-  );
-};
-
-export const ShopGrid: React.FC<ShopGridProps> = ({ onSelectProduct, lang, wishlistIds = [], onToggleWishlist, recentlyViewedIds = [] }) => {
-  const handleProductClick = (prod: Product, elementOverride?: ElementType) => {
-    onSelectProduct(prod, elementOverride);
-  };
-
-  // 1. Material Items
-  const materialItems = PRODUCTS.map(p => ({ product: p }));
-  
-  // 2. Elements Items (Use the first product which has element-specific images)
-  const baseProduct = PRODUCTS[0];
-  const elementItems = ELEMENTS.map(el => ({
-    product: baseProduct,
-    elementOverride: el.type,
-    titleOverride: lang === 'vi' ? el.nameVi : el.nameEn,
-    imageOverride: el.guardianImg
-  }));
-
-  // 3. Recently Viewed
-  const recentlyViewedItems = recentlyViewedIds
-    .map(id => PRODUCTS.find(p => p.id === id))
-    .filter((p): p is Product => p !== undefined)
-    .map(p => ({ product: p }));
-
-  return (
-    <div id="shop-catalog-view" className="space-y-16 pb-12 overflow-hidden">
-      
-      {/* Category 1: By Material */}
-      <ProductCarousel 
-        title={lang === 'vi' ? 'Chất Liệu' : 'Materials'} 
-        items={materialItems}
-        lang={lang}
-        wishlistIds={wishlistIds}
-        onToggleWishlist={onToggleWishlist}
-        onProductClick={handleProductClick}
-      />
-
-      {/* Category 2: By Five Elements */}
-      <ProductCarousel 
-        title={lang === 'vi' ? 'Ngũ Hành' : 'Five Elements'} 
-        items={elementItems}
-        lang={lang}
-        wishlistIds={wishlistIds}
-        onToggleWishlist={onToggleWishlist}
-        onProductClick={handleProductClick}
-      />
-
-      {/* Category 3: Recently Viewed */}
-      {recentlyViewedItems.length > 0 && (
-        <React.Fragment>
-          <div className="w-full h-px bg-slate-200/60 my-4" />
-          <ProductCarousel 
-            title={lang === 'vi' ? 'Sản phẩm đã xem' : 'Recently Viewed'} 
-            items={recentlyViewedItems}
-            lang={lang}
-            wishlistIds={wishlistIds}
-            onToggleWishlist={onToggleWishlist}
-            onProductClick={handleProductClick}
-          />
-        </React.Fragment>
-      )}
 
     </div>
   );

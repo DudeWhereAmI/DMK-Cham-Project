@@ -3,6 +3,31 @@ import { CartItem } from '../types';
 import { ELEMENTS, CHARMS, PRODUCTS } from '../data';
 import { Trash2, Plus, Minus, ChevronRight, Heart } from 'lucide-react';
 
+const MIRROR_IMAGES_CHU_NOI: Record<string, string> = {
+  KIM: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Kim.png',
+  MOC: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Th%E1%BB%95.png',
+  THUY: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Thu%E1%BB%B7.png',
+  HOA: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Ho%E1%BA%A3.png',
+  THO: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Th%E1%BB%95(1).png'
+};
+
+const MIRROR_IMAGES_LINH_VAT: Record<string, string> = {
+  KIM: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Kim.png',
+  MOC: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20M%E1%BB%99c.png',
+  THUY: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Thu%E1%BB%B7.png',
+  HOA: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Ho%E1%BA%A3.png',
+  THO: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20linh%20v%E1%BA%ADt%20-%20Th%E1%BB%95.png'
+};
+
+const getCartItemImage = (item: CartItem): string => {
+  if (item.product?.category === 'mirror' || item.product?.id === 'guong') {
+    const isZodiacMode = item.customization?.customType === 'zodiac' || !!item.customization?.selectedZodiacCharmId;
+    const mirrorMap = isZodiacMode ? MIRROR_IMAGES_LINH_VAT : MIRROR_IMAGES_CHU_NOI;
+    return mirrorMap[item.customization?.element] || item.product?.images?.['none'] || '';
+  }
+  return item.product?.images?.[item.customization?.element] || item.product?.images?.['none'] || Object.values(item.product?.images || {})[0] || '';
+};
+
 interface CartPageProps {
   cart: CartItem[];
   lang: 'vi' | 'en';
@@ -39,7 +64,8 @@ export const CartPage: React.FC<CartPageProps> = ({
   };
   
   const handleApplyDiscount = () => {
-    if (globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA') {
+    const code = globalDiscountCode.trim().toUpperCase();
+    if (code === 'CHAMISBYEUCOHOA' || code === 'BANTOIYEU') {
       setIsGlobalDiscountApplied(true);
       alert(lang === 'vi' ? 'Áp dụng mã giảm giá thành công!' : 'Discount applied successfully!');
     } else {
@@ -88,17 +114,25 @@ export const CartPage: React.FC<CartPageProps> = ({
                     {/* Image */}
                     <div className="w-32 h-32 bg-[#F5F5F5] rounded-lg shrink-0 overflow-hidden flex items-center justify-center p-2">
                       <img 
-                         src={item.product?.images?.[item.customization?.color] || item.product?.image || item.product?.images?.['none'] || Object.values(item.product?.images || {})[0] || 'https://via.placeholder.com/150?text=Chạm'} 
+                         src={getCartItemImage(item)} 
                          alt={item.product?.name} 
                          className="w-full h-full object-contain mix-blend-multiply"
-                       />
+                        referrerPolicy="no-referrer"  loading="lazy" />
                     </div>
                     
                     {/* Item Details */}
                     <div className="flex-1 flex flex-col">
                       <div className="flex justify-between items-start">
                         <h3 className="font-bold text-gray-900 text-lg line-clamp-2">
-                          {lang === 'vi' ? item.product.vietnameseName : item.product.name}
+                          {(() => {
+                            let itemName = lang === 'vi' ? item.product.vietnameseName : item.product.name;
+                            if (item.customization?.comboId === 'couple_combo') {
+                              return lang === 'vi' ? `Combo Chạm Cùng Nhau (${itemName})` : `Couple Combo (${itemName})`;
+                            } else if (item.customization?.comboId === 'mirror_combo') {
+                              return lang === 'vi' ? `Combo Chạm Ánh Nhìn (${itemName} & Gương)` : `Mirror Combo (${itemName} & Mirror)`;
+                            }
+                            return itemName;
+                          })()}
                         </h3>
                         <span className="font-bold text-lg text-gray-900">
                           {formatVND(item.finalPrice)}
@@ -112,7 +146,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                         </p>
                         {item.customization.text && (
                           <p>
-                            {lang === 'vi' ? 'Khắc chữ' : 'Engraving'}: "{item.customization.text}" ({item.customization.letteringStyle === 'embossed' ? (lang === 'vi' ? 'nổi' : '3D') : (lang === 'vi' ? 'dán' : 'sticker')})
+                            {lang === 'vi' ? 'Khắc chữ' : 'Engraving'}: "{item.customization.text}" ({item.customization.letteringStyle === 'embossed' ? (lang === 'vi' ? 'nổi (acrylic)' : '3D (acrylic)') : (lang === 'vi' ? 'dán' : 'sticker')})
                           </p>
                         )}
                         {item.product.category === 'sweatshirt' && item.customization.uploadedPhotoUrl && (
@@ -193,7 +227,11 @@ export const CartPage: React.FC<CartPageProps> = ({
                   </div>
                   {isGlobalDiscountApplied && (
                     <div className="text-xs text-green-600 font-bold ml-1">
-                      {lang === 'vi' ? '✓ Đã áp dụng mã giảm 20%' : '✓ 20% discount applied'}
+                      {globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA' ? (
+                        lang === 'vi' ? '✓ Đã áp dụng mã giảm 10%' : '✓ 10% discount applied'
+                      ) : (
+                        lang === 'vi' ? '✓ Đã áp dụng mã giảm 15k phí vận chuyển' : '✓ 15k shipping discount applied'
+                      )}
                     </div>
                   )}
                 </div>
@@ -204,15 +242,29 @@ export const CartPage: React.FC<CartPageProps> = ({
                     <span>{lang === 'vi' ? 'Tạm tính' : 'Subtotal'}</span>
                     <span>{formatVND(calculateSubtotal())}</span>
                   </div>
-                  {isGlobalDiscountApplied && (
+                  {isGlobalDiscountApplied && globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA' && (
                     <div className="flex justify-between items-center text-green-600 font-bold text-sm">
-                      <span>{lang === 'vi' ? 'Giảm giá (20%)' : 'Discount (20%)'}</span>
-                      <span>-{formatVND(calculateSubtotal() * 0.2)}</span>
+                      <span>{lang === 'vi' ? 'Giảm giá (10%)' : 'Discount (10%)'}</span>
+                      <span>-{formatVND(Math.round(calculateSubtotal() * 0.1))}</span>
+                    </div>
+                  )}
+                  {isGlobalDiscountApplied && globalDiscountCode.trim().toUpperCase() === 'BANTOIYEU' && (
+                    <div className="flex justify-between items-center text-green-600 font-bold text-sm">
+                      <span>{lang === 'vi' ? 'Giảm phí ship (BANTOIYEU)' : 'Shipping Discount (BANTOIYEU)'}</span>
+                      <span className="text-xs font-normal text-gray-500">
+                        {lang === 'vi' ? '-15.000 ₫ (áp dụng tại thanh toán)' : '-15,000 ₫ (applied at checkout)'}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-200">
                     <span className="text-lg font-bold text-gray-900">{lang === 'vi' ? 'Tổng cộng:' : 'Total:'}</span>
-                    <span className="text-lg font-bold text-gray-900">{formatVND(isGlobalDiscountApplied ? calculateSubtotal() * 0.8 : calculateSubtotal())}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {formatVND(
+                        isGlobalDiscountApplied && globalDiscountCode.trim().toUpperCase() === 'CHAMISBYEUCOHOA'
+                          ? Math.round(calculateSubtotal() * 0.9)
+                          : calculateSubtotal()
+                      )}
+                    </span>
                   </div>
                 </div>
 
@@ -249,7 +301,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                       src={product.images['none'] || Object.values(product.images)[0] || ''} 
                       alt={lang === 'vi' ? product.vietnameseName : product.name} 
                       className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                    />
+                     referrerPolicy="no-referrer"  loading="lazy" />
                     <button className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
                       <Heart className="w-6 h-6" />
                     </button>
@@ -281,9 +333,11 @@ export const CartPage: React.FC<CartPageProps> = ({
                   <h3 className="text-sm font-bold text-gray-900 group-hover:text-[#990000] transition line-clamp-2">
                     {lang === 'vi' ? product.vietnameseName : product.name}
                   </h3>
-                  <p className="font-bold text-gray-600 mt-1">
-                    {formatVND(product.basePrice)}
-                  </p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <p className="font-bold text-[#00687A]">
+                      {formatVND(product.basePrice)}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
