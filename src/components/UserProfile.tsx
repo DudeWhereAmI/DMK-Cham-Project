@@ -9,6 +9,9 @@ import { PRODUCTS, CHARMS, ELEMENTS } from '../data';
 import dmkBrandElement1 from '../assets/dmk_brand_element_1.svg';
 import mirrorVintage from '../assets/mirror_vintage.svg';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
+
 const MIRROR_IMAGES_CHU_NOI: Record<string, string> = {
   KIM: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Kim.png',
   MOC: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@c48b84d3facbd04f5e09e85c40f07bfa91de6368/BRAND%20ELEMENT%20(UPDATE)/G%C6%AF%C6%A0NG%20M%E1%BA%AAU/G%C6%B0%C6%A1ng%20Ch%E1%BB%AF%20n%E1%BB%95i%20-%20Th%E1%BB%95.png',
@@ -301,7 +304,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
       });
       
       // Send the updated info back to Google Sheets
-      const sheetResponse = await fetch('/api/record-preorder-sheet', {
+      const sheetResponse = await fetch(`${API_BASE}/api/record-preorder-sheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -371,7 +374,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
       });
       
       // Send the updated info back to Google Sheets
-      const sheetResponse = await fetch('/api/record-preorder-sheet', {
+      const sheetResponse = await fetch(`${API_BASE}/api/record-preorder-sheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -893,7 +896,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
                       {selectedOrder.items?.map((item: any, index: number) => (
                         <div key={index} className="flex flex-col sm:flex-row gap-6 p-6 border-b border-slate-100 last:border-b-0">
                           <div className="w-24 h-24 bg-[#f4f4f4] rounded-lg overflow-hidden shrink-0">
-                            <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover mix-blend-multiply"  referrerPolicy="no-referrer"  loading="lazy" />
+                            <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover mix-blend-multiply"  referrerPolicy="no-referrer"  />
                           </div>
                           <div className="flex-1 flex flex-col justify-center">
                             <h4 className="font-bold text-slate-900 text-base">{getItemDisplayName(item, lang)}</h4>
@@ -1357,7 +1360,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
                           {order.items?.map((item: any, index: number) => (
                             <div key={index} className="flex gap-4 items-center">
                               <div className="w-16 h-16 bg-[#f4f4f4] rounded-lg overflow-hidden shrink-0">
-                                <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover mix-blend-multiply"  referrerPolicy="no-referrer"  loading="lazy" />
+                                <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-cover mix-blend-multiply"  referrerPolicy="no-referrer"  />
                               </div>
                               <div className="flex-1">
                                 <h4 className="font-bold text-slate-900 text-sm">{getItemDisplayName(item, lang)}</h4>
@@ -1490,7 +1493,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
                               } 
                               className="w-full h-full object-contain select-none drop-shadow-md" 
                               alt={trans.name}
-                             referrerPolicy="no-referrer"  loading="lazy" />
+                             referrerPolicy="no-referrer"  />
                           </div>
                         </div>
 

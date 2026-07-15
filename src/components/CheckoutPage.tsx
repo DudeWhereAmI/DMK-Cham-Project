@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { CartItem } from '../types';
-import { processOrderInventory } from '../lib/inventory';
+import { fetchInventoryFromFirestore } from '../lib/inventory';
 import { PngLogoHorizontal } from './PngLogo';
 import { db, storage } from '../lib/firebase';
 import { collection, addDoc, doc, getDoc, Timestamp, setDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { X, CheckCircle, Tag, Copy, ShieldCheck, MapPin, UploadCloud } from 'lucide-react';
 import { MIRROR_IMAGES_CHU_NOI, MIRROR_IMAGES_LINH_VAT } from '../data';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 
 const NEW_WARDS: Record<string, string[]> = {
   'Quận 1': ['Phường Sài Gòn', 'Phường Tân Định', 'Phường Bến Thành', 'Phường Cầu Ông Lãnh'],
@@ -48,6 +51,7 @@ interface CheckoutPageProps {
   onNavigateToShop: () => void;
   onNavigateToLogin: () => void;
   onCheckoutSuccess: () => void;
+  clearCart: () => void;
   currentUser: any;
 }
 
@@ -61,7 +65,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onNavigateHome,
   onNavigateToShop,
   onNavigateToLogin,
-  onCheckoutSuccess,
+  onCheckoutSuccess, clearCart,
   currentUser
 }) => {
   const [formData, setFormData] = useState({
@@ -127,6 +131,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [showPreorderPopup, setShowPreorderPopup] = useState(false);
   const [preorderSuccess, setPreorderSuccess] = useState(false);
+  const [submittedCart, setSubmittedCart] = useState<CartItem[]>([]);
   const [qrTimeLeft, setQrTimeLeft] = useState(15 * 60);
   const [copiedCode, setCopiedCode] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -258,6 +263,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (isSubmitting) return;
     e.preventDefault();
     if (cart.length === 0) return;
     
@@ -281,6 +287,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleConfirmOrderInfo = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     try {
       const sanitizedCart = JSON.parse(JSON.stringify(cart));
@@ -322,6 +329,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleConfirmPreorder = async () => {
+    if (isSubmitting) return;
     if ((paymentMethod === 'bank_transfer' || paymentMethod === 'momo') && !paymentProofFile) {
       alert(lang === 'vi' ? 'Vui lòng tải lên minh chứng chuyển khoản' : 'Please upload payment proof');
       return;
@@ -380,7 +388,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       }
 
       // Call Express background email API (run in background)
-      const emailResponsePromise = fetch('/api/send-preorder-email', {
+      const emailResponsePromise = fetch(`${API_BASE}/api/send-preorder-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -421,7 +429,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       });
 
       // Record to Google Sheets (always)
-      const sheetPromise = fetch('/api/record-preorder-sheet', {
+      const sheetPromise = fetch(`${API_BASE}/api/record-preorder-sheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -457,6 +465,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       // Fire email and sheet updates in background without blocking UI
       Promise.allSettled([emailPromise, sheetPromise]).then(() => {
          console.log("Background order notifications completed.");
+         if (formData.email?.toLowerCase() !== 'hoangphucunknown@gmail.com') {
+           fetchInventoryFromFirestore().catch(console.error);
+         }
       });
 
       // Track purchase event with GA
@@ -468,23 +479,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           items: sanitizedCart.map((item: any) => ({
             item_id: item.product.id,
             item_name: item.product.name,
-            price: item.product.price,
+            price: item.finalPrice,
             quantity: item.quantity,
+            item_category: item.product.category
           }))
         });
       }
 
-      // Process inventory (skip for test email hoangphucunknown@gmail.com)
-      if (formData.email?.toLowerCase() !== 'hoangphucunknown@gmail.com') {
-        try {
-          processOrderInventory(sanitizedCart, currentOrderId);
-        } catch (err) {
-          console.error("Failed to process inventory:", err);
-        }
-      }
-
       // Show success screen within the popup
       setPreorderSuccess(true);
+      if (clearCart) clearCart();
     } catch (error) {
       console.error("Error creating order:", error);
       alert(lang === 'vi' ? 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại' : 'Error creating order. Please try again');
@@ -503,7 +507,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const handleFinishPreorder = () => {
     setShowPreorderPopup(false);
     setPreorderSuccess(false);
-    onCheckoutSuccess();
+    onCheckoutSuccess(); clearCart();
   };
 
 
@@ -541,13 +545,45 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <label className={`bg-white rounded-xl cursor-pointer p-4 shadow-sm border ${deliveryMethod === 'direct' ? 'border-[#990000] ring-1 ring-[#990000]/20' : 'border-gray-200'} transition-all`}>
                   <div className="flex items-start gap-3">
-                    <input type="radio" checked={deliveryMethod === 'direct'} onChange={() => setDeliveryMethod('direct')} className="text-[#990000] focus:ring-[#990000] mt-1" />
+                    <input type="radio" checked={deliveryMethod === 'direct'} onChange={() => {
+                      setDeliveryMethod('direct');
+                      if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'add_shipping_info', {
+                          currency: 'VND',
+                          value: total,
+                          shipping_tier: 'direct',
+                          items: cart.map(item => ({
+                            item_id: item.product.id,
+                            item_name: item.product.name,
+                            price: item.finalPrice,
+                            quantity: item.quantity,
+                            item_category: item.product.category
+                          }))
+                        });
+                      }
+                    }} className="text-[#990000] focus:ring-[#990000] mt-1" />
                     <span className="font-bold text-sm text-gray-900 mt-0.5">{lang === 'vi' ? 'Nhận tại cửa hàng' : 'Direct Pickup'}</span>
                   </div>
                 </label>
                 <label className={`bg-white rounded-xl cursor-pointer p-4 shadow-sm border ${deliveryMethod === 'online' ? 'border-[#990000] ring-1 ring-[#990000]/20' : 'border-gray-200'} transition-all`}>
                   <div className="flex items-start gap-3">
-                    <input type="radio" checked={deliveryMethod === 'online'} onChange={() => setDeliveryMethod('online')} className="text-[#990000] focus:ring-[#990000] mt-1" />
+                    <input type="radio" checked={deliveryMethod === 'online'} onChange={() => {
+                      setDeliveryMethod('online');
+                      if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'add_shipping_info', {
+                          currency: 'VND',
+                          value: total,
+                          shipping_tier: 'online',
+                          items: cart.map(item => ({
+                            item_id: item.product.id,
+                            item_name: item.product.name,
+                            price: item.finalPrice,
+                            quantity: item.quantity,
+                            item_category: item.product.category
+                          }))
+                        });
+                      }
+                    }} className="text-[#990000] focus:ring-[#990000] mt-1" />
                     <span className="font-bold text-sm text-gray-900 mt-0.5">{lang === 'vi' ? 'Giao hàng tận nơi' : 'Online Delivery'}</span>
                   </div>
                 </label>
@@ -707,7 +743,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           {lang === 'vi' ? 'Thanh toán bằng Tiền mặt' : 'Pay with Cash'}
                         </span>
                       </div>
-                      <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="hidden" />
+                      <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => {
+                        setPaymentMethod('cod');
+                        if (typeof window.gtag === 'function') {
+                          window.gtag('event', 'add_payment_info', {
+                            currency: 'VND',
+                            value: total,
+                            payment_type: 'cod',
+                            items: cart.map(item => ({
+                              item_id: item.product.id,
+                              item_name: item.product.name,
+                              price: item.finalPrice,
+                              quantity: item.quantity,
+                              item_category: item.product.category
+                            }))
+                          });
+                        }
+                      }} className="hidden" />
                     </div>
                   </div>
                 </label>
@@ -715,7 +767,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 {/* Option 2: MoMo */}
                 <label className={`bg-white rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-row h-20 cursor-pointer group shadow-sm border ${paymentMethod === 'momo' ? 'border-[#990000] ring-1 ring-[#990000]/20' : 'border-gray-200'}`}>
                   <div className="w-[35%] h-full relative overflow-hidden bg-[#a50064]/5 flex items-center justify-center p-2">
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="w-full h-full object-contain"  referrerPolicy="no-referrer"  loading="lazy" />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="w-full h-full object-contain"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="w-[65%] p-3 flex items-center bg-transparent border-l border-gray-100">
                     <div className="flex items-center gap-3 w-full group/link">
@@ -724,7 +776,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           {lang === 'vi' ? 'Thanh toán qua MoMo' : 'Pay via MoMo'}
                         </span>
                       </div>
-                      <input type="radio" name="payment" value="momo" checked={paymentMethod === 'momo'} onChange={() => setPaymentMethod('momo')} className="hidden" />
+                      <input type="radio" name="payment" value="momo" checked={paymentMethod === 'momo'} onChange={() => {
+                        setPaymentMethod('momo');
+                        if (typeof window.gtag === 'function') {
+                          window.gtag('event', 'add_payment_info', {
+                            currency: 'VND',
+                            value: total,
+                            payment_type: 'momo',
+                            items: cart.map(item => ({
+                              item_id: item.product.id,
+                              item_name: item.product.name,
+                              price: item.finalPrice,
+                              quantity: item.quantity,
+                              item_category: item.product.category
+                            }))
+                          });
+                        }
+                      }} className="hidden" />
                     </div>
                   </div>
                 </label>
@@ -732,7 +800,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 {/* Option 3: Bank Transfer */}
                 <label className={`sm:col-span-2 bg-white rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-row h-20 cursor-pointer group shadow-sm border ${paymentMethod === 'bank_transfer' ? 'border-[#990000] ring-1 ring-[#990000]/20' : 'border-gray-200'}`}>
                   <div className="w-[35%] h-full relative overflow-hidden bg-white flex items-center justify-center p-3 border-r border-gray-100">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="w-full h-full object-contain"  referrerPolicy="no-referrer"  loading="lazy" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="w-full h-full object-contain"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="w-[65%] p-3 flex items-center bg-transparent border-l border-gray-100">
                     <div className="flex items-center gap-3 w-full group/link">
@@ -741,7 +809,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           {lang === 'vi' ? 'Chuyển khoản Ngân hàng' : 'Bank Transfer'}
                         </span>
                       </div>
-                      <input type="radio" name="payment" value="bank_transfer" checked={paymentMethod === 'bank_transfer'} onChange={() => setPaymentMethod('bank_transfer')} className="hidden" />
+                      <input type="radio" name="payment" value="bank_transfer" checked={paymentMethod === 'bank_transfer'} onChange={() => {
+                        setPaymentMethod('bank_transfer');
+                        if (typeof window.gtag === 'function') {
+                          window.gtag('event', 'add_payment_info', {
+                            currency: 'VND',
+                            value: total,
+                            payment_type: 'bank_transfer',
+                            items: cart.map(item => ({
+                              item_id: item.product.id,
+                              item_name: item.product.name,
+                              price: item.finalPrice,
+                              quantity: item.quantity,
+                              item_category: item.product.category
+                            }))
+                          });
+                        }
+                      }} className="hidden" />
                     </div>
                   </div>
                 </label>
@@ -771,13 +855,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     className="w-[120px] h-[80px] bg-white rounded border border-gray-200 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => setZoomImage('https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20m%E1%BB%9F.jpg')}
                   >
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20m%E1%BB%9F.jpg" alt="Packaging Box Open" className="w-full h-full object-cover"  referrerPolicy="no-referrer"  loading="lazy" />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20m%E1%BB%9F.jpg" alt="Packaging Box Open" className="w-full h-full object-cover"  referrerPolicy="no-referrer"  />
                   </div>
                   <div 
                     className="w-[120px] h-[80px] bg-white rounded border border-gray-200 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => setZoomImage('https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20%C4%91%C3%B3ng.png')}
                   >
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20%C4%91%C3%B3ng.png" alt="Packaging Box Closed" className="w-full h-full object-cover"  referrerPolicy="no-referrer"  loading="lazy" />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@f42cff5f483939de7ef9559c2f121d08444532ea/BRAND%20ELEMENT%20(UPDATE)/Pakaging/Pakaging%20Ch%E1%BA%A1m%20-%20l%C3%BAc%20%C4%91%C3%B3ng.png" alt="Packaging Box Closed" className="w-full h-full object-cover"  referrerPolicy="no-referrer"  />
                   </div>
                 </div>
               </div>
@@ -797,7 +881,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <div key={item.id} className="flex gap-4 relative">
                      <div className="w-16 h-16 bg-white rounded-md border border-gray-200 p-1 flex-shrink-0 relative">
                        
-                     <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-contain mix-blend-multiply"  referrerPolicy="no-referrer"  loading="lazy" />
+                     <img src={getCartItemImage(item)} alt={item.product?.name} className="w-full h-full object-contain mix-blend-multiply"  referrerPolicy="no-referrer"  />
 
                    <div className="absolute -top-2 -right-2 w-5 h-5 bg-gray-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
                      {item.quantity}
@@ -1034,13 +1118,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                                 src={`https://img.vietqr.io/image/970407-500217777777-compact2.png?amount=${total}&addInfo=${encodeURIComponent((formData.name + ' ' + formData.phone + ' ' + (currentOrderId || '')).trim())}&accountName=NGUYEN HOANG PHUC`} 
                                 alt="QR Code" 
                                 className="w-full h-auto object-contain mx-auto"
-                               referrerPolicy="no-referrer"  loading="lazy" />
+                               referrerPolicy="no-referrer"  />
                             ) : (
                               <img 
                                 src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1d210243f851f1f56d6a41ba5c73144ff8636c8f/730775708_1725132161906814_8498991417054631504_n.jpg" 
                                 alt="MoMo QR Code" 
                                 className="w-full h-auto object-contain mx-auto"
-                               referrerPolicy="no-referrer"  loading="lazy" />
+                               referrerPolicy="no-referrer"  />
                             )}
                           </div>
                           <div className="text-center mb-2">
@@ -1054,9 +1138,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           </div>
                           <div className="flex items-center justify-center mt-2">
                             {paymentMethod === 'bank_transfer' ? (
-                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="h-5 object-contain"  referrerPolicy="no-referrer"  loading="lazy" />
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="h-5 object-contain"  referrerPolicy="no-referrer"  />
                             ) : (
-                              <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="h-5 object-contain"  referrerPolicy="no-referrer"  loading="lazy" />
+                              <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="h-5 object-contain"  referrerPolicy="no-referrer"  />
                             )}
                           </div>
                         </div>
@@ -1070,7 +1154,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           </h4>
                           <div className="border-2 border-dashed border-[#990000]/50 rounded-xl p-8 bg-[#FDF8F8] hover:bg-[#FDF0F0] transition cursor-pointer flex flex-col items-center justify-center relative flex-1 min-h-[200px]">
                             {paymentProofPreview ? (
-                              <img src={paymentProofPreview} alt="Proof" className="max-h-56 object-contain rounded"  referrerPolicy="no-referrer"  loading="lazy" />
+                              <img src={paymentProofPreview} alt="Proof" className="max-h-56 object-contain rounded"  referrerPolicy="no-referrer"  />
                             ) : (
                               <div className="flex flex-col items-center justify-center text-gray-500">
                                 <UploadCloud className="w-8 h-8 mb-3 text-[#990000]" />
@@ -1198,7 +1282,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             src={zoomImage} 
             alt="Zoomed Packaging" 
             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-           referrerPolicy="no-referrer"  loading="lazy" />
+           referrerPolicy="no-referrer"  />
         </div>
       )}
 

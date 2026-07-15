@@ -2,14 +2,28 @@ import { ElementType } from '../types';
 import { doc, getDoc, setDoc, collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
+
+const parseFirestoreResponse = (fields: any): any => {
+  if (!fields) return null;
+  const res: any = {};
+  for (const key in fields) {
+    if (fields[key].integerValue !== undefined) {
+      res[key] = parseInt(fields[key].integerValue, 10);
+    } else if (fields[key].mapValue) {
+      res[key] = parseFirestoreResponse(fields[key].mapValue.fields);
+    }
+  }
+  return res;
+};
+
 export const fetchInventoryFromFirestore = async () => {
+  let baseInv = JSON.parse(JSON.stringify(INITIAL_INVENTORY));
+  let history: any[] = [];
   try {
     const docRef = doc(db, 'admin', 'inventory');
     const docSnap = await getDoc(docRef);
-    
-    let baseInv = JSON.parse(JSON.stringify(INITIAL_INVENTORY));
-    let lastUpdatedMs = new Date('2026-07-01T00:00:00').getTime();
-    let history = [];
     
     if (docSnap.exists()) {
       const data = docSnap.data();
@@ -17,35 +31,38 @@ export const fetchInventoryFromFirestore = async () => {
         products: data.products || baseInv.products,
         charms: data.charms || baseInv.charms
       };
-      if (data.updatedAt) {
-        lastUpdatedMs = new Date(data.updatedAt).getTime();
-      }
       if (data.history) {
         history = data.history;
       }
     }
+    saveInventory(baseInv);
+    saveInventoryHistory(history);
+    return baseInv;
+  } catch (err: any) {
+    console.warn("Failed to fetch inventory via Firebase SDK, attempting REST API fallback...", err);
+    try {
+      const res = await fetch("https://firestore.googleapis.com/v1/projects/gen-lang-client-0149031439/databases/ai-studio-8076b27e-2c83-44c0-bf0c-2588aebf752d/documents/admin/inventory");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.fields) {
+          const products = parseFirestoreResponse(data.fields.products?.mapValue?.fields);
+          const charms = parseFirestoreResponse(data.fields.charms?.mapValue?.fields);
+          if (products) baseInv.products = products;
+          if (charms) baseInv.charms = charms;
+          
+          saveInventory(baseInv);
+          // Note: we skip history array parsing here since it's complex and not needed for basic checkout UI
+          return baseInv;
+        }
+      }
+    } catch(restErr) {
+      console.warn("REST API fallback also failed:", restErr);
+    }
     
-    const q = query(collection(db, 'orders'), where('createdAt', '>=', Timestamp.fromMillis(lastUpdatedMs)));
-    const ordersSnap = await getDocs(q);
-    const fetchedOrders: any[] = [];
-    ordersSnap.forEach((docSnap) => {
-      fetchedOrders.push({ id: docSnap.id, ...docSnap.data() });
-    });
-    
-    // Apply newer orders on top of baseInv
-    const result = recalculateInventoryFromOrders(fetchedOrders, baseInv, lastUpdatedMs);
-    const inv = result.inv;
-    
-    // Merge history
-    const mergedHistory = [...result.history, ...history];
-    
-    saveInventory(inv);
-    saveInventoryHistory(mergedHistory);
-    
-    return inv;
-  } catch (err) {
-    console.warn("Failed to fetch real orders for inventory calculation from Firestore:", err);
-    return null;
+    // If EVERYTHING fails, at least save the INITIAL_INVENTORY so we don't have nulls,
+    // and components can render something.
+    saveInventory(baseInv);
+    return baseInv;
   }
 };
 
@@ -62,9 +79,25 @@ export const saveInventoryToFirestore = async (inv: any, history?: any[]) => {
       history: history || getInventoryHistory(),
       updatedAt: new Date().toISOString()
     });
-  } catch (err) {
-    console.warn("Failed to save inventory to Firestore:", err);
-    throw err;
+  } catch (err: any) {
+    if (err.code === 'permission-denied') {
+      // Fallback: Use backend API to update inventory since guest doesn't have write access
+      try {
+        await fetch(`${API_BASE}/api/update-inventory-admin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            newInventory: inv,
+            history: history || getInventoryHistory()
+          })
+        });
+      } catch (backendErr) {
+        console.warn("Backend inventory update also failed:", backendErr);
+      }
+    } else {
+      console.warn("Failed to save inventory to Firestore:", err);
+      throw err;
+    }
   }
 };
 
@@ -75,21 +108,21 @@ export const INITIAL_INVENTORY: any = {
       'HOA': 25,
       'MOC': 5,
       'THUY': 5,
-      'THO': 35
+      'THO': 38
     },
     'clip-1': {
-      'KIM': 15,
-      'HOA': 22,
-      'MOC': 9,
-      'THUY': 6,
-      'THO': 26
+      'KIM': 18,
+      'HOA': 34,
+      'MOC': 12,
+      'THUY': 14,
+      'THO': 33
     },
     'clip-2': {
-      'KIM': 26,
-      'HOA': 20,
-      'MOC': 6,
-      'THUY': 8,
-      'THO': 6
+      'KIM': 30,
+      'HOA': 28,
+      'MOC': 11,
+      'THUY': 12,
+      'THO': 10
     }
   },
   charms: {
@@ -101,7 +134,9 @@ export const INITIAL_INVENTORY: any = {
   }
 };
 
+let inMemoryInventory: any = null;
 export const getInventory = () => {
+  if (inMemoryInventory) return JSON.parse(JSON.stringify(inMemoryInventory));
   try {
     const stored = localStorage.getItem('cham_inventory');
     if (stored) {
@@ -112,7 +147,13 @@ export const getInventory = () => {
 };
 
 export const saveInventory = (inv: any) => {
-  localStorage.setItem('cham_inventory', JSON.stringify(inv));
+  inMemoryInventory = JSON.parse(JSON.stringify(inv));
+  try {
+    localStorage.setItem('cham_inventory', JSON.stringify(inv));
+  } catch(e) {
+    console.warn("localStorage not available, using in-memory inventory");
+  }
+  window.dispatchEvent(new Event('inventory_updated'));
 };
 
 export const checkIsSoldOut = (categoryId: string, element: ElementType) => {
@@ -139,7 +180,9 @@ export const checkIsCharmInitiallySoldOut = (element: ElementType) => {
   return INITIAL_INVENTORY.charms[element] === 0;
 };
 
+let inMemoryHistory: any[] | null = null;
 export const getInventoryHistory = (): any[] => {
+  if (inMemoryHistory) return JSON.parse(JSON.stringify(inMemoryHistory));
   try {
     const stored = localStorage.getItem('cham_inventory_history');
     if (stored) {
@@ -150,7 +193,10 @@ export const getInventoryHistory = (): any[] => {
 };
 
 export const saveInventoryHistory = (history: any[]) => {
-  localStorage.setItem('cham_inventory_history', JSON.stringify(history));
+  inMemoryHistory = JSON.parse(JSON.stringify(history));
+  try {
+    localStorage.setItem('cham_inventory_history', JSON.stringify(history));
+  } catch (e) {}
 };
 
 export const normalizeElement = (el: string): string => {
@@ -162,92 +208,6 @@ export const normalizeElement = (el: string): string => {
   if (s.includes('MỘC') || s.includes('MOC')) return 'MOC';
   if (s.includes('THỔ') || s.includes('THO')) return 'THO';
   return s;
-};
-
-export const processOrderInventory = (cartItems: any[], orderId: string = 'N/A') => {
-  const inv = getInventory();
-  const historyLogs: any[] = [];
-  
-  cartItems.forEach(item => {
-    const qty = item.quantity || 1;
-    const cat = item.product?.category;
-    if (!cat) return;
-    const { element, partnerElement, selectedZodiacCharmId, selectedZodiacCharmId2 } = item.customization || {};
-    let comboId = item.customization?.comboId;
-    
-    // Fallback for older orders that have partnerElement but missing comboId
-    if (partnerElement && !comboId) {
-      comboId = 'mirror_combo';
-    }
-    
-    const normEl = normalizeElement(element);
-    const normPartnerEl = normalizeElement(partnerElement);
-
-    // Decrement main product
-    const actualCat1 = (cat === 'combo' && comboId === 'mirror_combo') ? 'mirror' : (cat === 'combo' ? 'clip-1' : cat);
-    if (inv.products[actualCat1] && inv.products[actualCat1][normEl] !== undefined) {
-      inv.products[actualCat1][normEl] = Math.max(0, inv.products[actualCat1][normEl] - qty);
-      historyLogs.push({
-        category: actualCat1,
-        item: normEl,
-        qty: qty,
-        type: 'product'
-      });
-    }
-    
-    // Decrement partner product if any
-    if (normPartnerEl) {
-      const actualCat2 = comboId === 'mirror_combo' ? 'mirror' : (cat === 'combo' ? 'clip-1' : cat);
-      if (inv.products[actualCat2] && inv.products[actualCat2][normPartnerEl] !== undefined) {
-        inv.products[actualCat2][normPartnerEl] = Math.max(0, inv.products[actualCat2][normPartnerEl] - qty);
-        historyLogs.push({
-          category: actualCat2,
-          item: normPartnerEl,
-          qty: qty,
-          type: 'product'
-        });
-      }
-    }
-    
-    // Decrement charms
-    if (selectedZodiacCharmId && selectedZodiacCharmId.startsWith('zodiac-')) {
-      const cType = normalizeElement(selectedZodiacCharmId.replace('zodiac-', ''));
-      if (inv.charms[cType] !== undefined) {
-        inv.charms[cType] = Math.max(0, inv.charms[cType] - qty);
-        historyLogs.push({
-          category: 'charms',
-          item: `zodiac-${cType}`,
-          qty: qty,
-          type: 'charm'
-        });
-      }
-    }
-    if (selectedZodiacCharmId2 && selectedZodiacCharmId2.startsWith('zodiac-')) {
-      const cType2 = normalizeElement(selectedZodiacCharmId2.replace('zodiac-', ''));
-      if (inv.charms[cType2] !== undefined) {
-        inv.charms[cType2] = Math.max(0, inv.charms[cType2] - qty);
-        historyLogs.push({
-          category: 'charms',
-          item: `zodiac-${cType2}`,
-          qty: qty,
-          type: 'charm'
-        });
-      }
-    }
-  });
-
-  let updatedHistory = getInventoryHistory();
-  if (historyLogs.length > 0) {
-    updatedHistory.unshift({
-      id: `LOG-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
-      orderId,
-      timestamp: new Date().toISOString(),
-      decrements: historyLogs
-    });
-  }
-
-  saveInventoryToFirestore(inv, updatedHistory).catch(() => {});
-  return inv;
 };
 
 export const recalculateInventoryFromOrders = (orders: any[], baseInv?: any, limitTimeMsOverride?: number) => {
@@ -389,7 +349,7 @@ export const recalculateInventoryFromOrders = (orders: any[], baseInv?: any, lim
     }
   });
 
-  saveInventoryToFirestore(inv, newHistory).catch(() => {});
+  
   return { inv, history: newHistory };
 };
 

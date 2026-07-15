@@ -130,7 +130,7 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
                             alt={`${mat.id} - ${imgIndex}`} 
                             className={`absolute inset-0 w-full h-[300px] object-contain transition-all duration-1000 ease-in-out ${imgIndex === activeIndices[index] ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                             referrerPolicy="no-referrer"
-                           loading="lazy" />
+                           />
                        ))}
                      </div>
                      <div className={`w-full md:w-7/12 ${index % 2 === 1 ? 'text-left md:text-right' : ''}`}>
@@ -181,7 +181,7 @@ export const MaterialsSubpage: React.FC<MaterialsSubpageProps> = ({ lang, onNavi
                             alt={`Limited - ${imgIndex}`} 
                             className={`absolute w-full max-w-[400px] h-auto drop-shadow-2xl transition-all duration-1000 ease-in-out ${imgIndex === activeLimitedIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                             referrerPolicy="no-referrer"
-                           loading="lazy" />
+                           />
                        ))}
                     </div>
                   </div>

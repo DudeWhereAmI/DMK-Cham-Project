@@ -243,13 +243,13 @@ export const ElementSubpage: React.FC<ElementSubpageProps> = ({ elementId, lang,
             src={el.slides[activeSlideIndex]} 
             alt={el.nameEn} 
             className="w-[90%] h-[90%] object-contain drop-shadow-2xl animate-float transition-opacity duration-500 mix-blend-multiply -translate-y-12 md:-translate-y-24 translate-x-12 md:translate-x-24"
-           referrerPolicy="no-referrer"  loading="lazy" />
+           referrerPolicy="no-referrer"  />
         ) : (
           <img 
             src={el.guardianImg} 
             alt={el.nameEn} 
             className="w-[75%] h-[75%] object-contain drop-shadow-2xl animate-float mix-blend-multiply -translate-y-12 md:-translate-y-24 translate-x-12 md:translate-x-24"
-           referrerPolicy="no-referrer"  loading="lazy" />
+           referrerPolicy="no-referrer"  />
         )}
       </div>
 

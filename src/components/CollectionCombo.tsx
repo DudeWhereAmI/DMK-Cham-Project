@@ -185,7 +185,7 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
                   src={getComboImage(combo.id)} 
                   alt={combo.nameEn} 
                   className="w-[100%] h-[100%] max-w-[500px] md:max-w-[600px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-110 z-20 translate-x-0 -translate-y-4 md:-translate-x-2 md:-translate-y-6 lg:-translate-x-4 lg:-translate-y-8 -rotate-3"
-                 referrerPolicy="no-referrer"  loading="lazy" />
+                 referrerPolicy="no-referrer"  />
               </div>
             </div>
           </div>

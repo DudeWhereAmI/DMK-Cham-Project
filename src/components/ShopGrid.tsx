@@ -286,7 +286,7 @@ export const ShopGrid: React.FC<ShopGridProps> = ({
                       className={`w-full h-full object-contain p-8 mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-110 pointer-events-none drop-shadow-xl z-10 relative ${isItemSoldOut ? 'opacity-50 grayscale' : ''}`}
                       referrerPolicy="no-referrer"
                       draggable={false}
-                     loading="lazy" />
+                     />
                     
                     {isItemSoldOut && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">

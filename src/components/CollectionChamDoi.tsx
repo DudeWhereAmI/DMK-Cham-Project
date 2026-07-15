@@ -140,7 +140,7 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
                   src={style.imgUrl} 
                   alt={style.nameEn} 
                   className="w-full h-full max-w-[600px] md:max-w-[800px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-110 md:scale-[1.2] lg:scale-[1.3] translate-x-3 md:translate-x-6 z-20 transition-transform duration-700 ease-out hover:scale-[1.15] md:hover:scale-[1.25] lg:hover:scale-[1.35]"
-                 referrerPolicy="no-referrer"  loading="lazy" />
+                 referrerPolicy="no-referrer"  />
               </div>
             </div>
           </div>

@@ -110,6 +110,30 @@ export default function App() {
   
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [isInventoryLoaded, setIsInventoryLoaded] = useState(false);
+  const [inventoryVersion, setInventoryVersion] = useState(0);
+
+  useEffect(() => {
+    if (isCartOpen && typeof window.gtag === 'function') {
+      const cartValue = cart.reduce((sum, item) => sum + (item.finalPrice * (item.quantity || 1)), 0);
+      window.gtag('event', 'view_cart', {
+        currency: 'VND',
+        value: cartValue,
+        items: cart.map(item => ({
+          item_id: item.product.id,
+          item_name: item.product.name,
+          price: item.finalPrice,
+          quantity: item.quantity || 1,
+          item_category: item.product.category
+        }))
+      });
+    }
+  }, [isCartOpen]); // Intentionally omitting cart to only fire when cart opens
+
+  useEffect(() => {
+    const handleInvUpdate = () => setInventoryVersion(v => v + 1);
+    window.addEventListener('inventory_updated', handleInvUpdate);
+    return () => window.removeEventListener('inventory_updated', handleInvUpdate);
+  }, []);
 
   useEffect(() => {
     fetchInventoryFromFirestore().then((res) => { console.log("Inventory loaded:", res);
@@ -182,17 +206,28 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('cham_cart', JSON.stringify(cart));
+    try {
+      localStorage.setItem('cham_cart', JSON.stringify(cart));
+    } catch(e) {}
   }, [cart]);
 
   useEffect(() => {
+    // Update browser URL so GA4 Enhanced Measurement tracks page changes correctly
+    const path = '/' + (currentView === 'home' ? '' : currentView);
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+    
+    // Manually trigger a page_view to be safe
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'page_view', {
         page_title: currentView,
         page_location: window.location.href,
-        page_path: `/${currentView === 'home' ? '' : currentView}`
+        page_path: path
       });
+    }
 
+    if (typeof window.gtag === 'function') {
       if (currentView === 'checkout') {
         const total = cart.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
         window.gtag('event', 'begin_checkout', {
@@ -202,7 +237,8 @@ export default function App() {
             item_id: item.product.id,
             item_name: item.product.name,
             price: item.finalPrice,
-            quantity: item.quantity
+            quantity: item.quantity,
+            item_category: item.product.category
           }))
         });
       }
@@ -215,6 +251,7 @@ export default function App() {
             item_id: product.id,
             item_name: product.name,
             price: product.basePrice,
+            quantity: 1,
             item_category: product.category,
             index: index
           }))
@@ -280,6 +317,7 @@ export default function App() {
           item_id: product.id,
           item_name: product.name,
           price: product.basePrice,
+          quantity: 1,
           item_category: product.category
         }]
       });
@@ -291,6 +329,7 @@ export default function App() {
           item_id: product.id,
           item_name: product.name,
           price: product.basePrice,
+          quantity: 1,
           item_category: product.category
         }]
       });
@@ -463,7 +502,8 @@ export default function App() {
           item_id: selectedProduct.id,
           item_name: selectedProduct.name,
           price: finalPrice,
-          quantity: qty
+          quantity: qty,
+          item_category: selectedProduct.category
         }]
       });
     }
@@ -482,7 +522,8 @@ export default function App() {
           item_id: item.product.id,
           item_name: item.product.name,
           price: item.finalPrice,
-          quantity: item.quantity || 1
+          quantity: item.quantity || 1,
+          item_category: item.product.category
         }]
       });
     }
@@ -527,6 +568,20 @@ export default function App() {
   };
 
   const handleRemoveItem = (id: string) => {
+    const itemToRemove = cart.find(item => item.id === id);
+    if (itemToRemove && typeof window.gtag === 'function') {
+      window.gtag('event', 'remove_from_cart', {
+        currency: 'VND',
+        value: itemToRemove.finalPrice * itemToRemove.quantity,
+        items: [{
+          item_id: itemToRemove.product.id,
+          item_name: itemToRemove.product.name,
+          price: itemToRemove.finalPrice,
+          quantity: itemToRemove.quantity,
+          item_category: itemToRemove.product.category
+        }]
+      });
+    }
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -587,7 +642,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-transparent relative">
       {/* Global Background Pattern at the very bottom */}
-      <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1d210243f851f1f56d6a41ba5c73144ff8636c8f/Des276%20(1000%20x%20500%20px).png" alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none -z-50" referrerPolicy="no-referrer"  loading="lazy" />
+      <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1d210243f851f1f56d6a41ba5c73144ff8636c8f/Des276%20(1000%20x%20500%20px).png" alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none -z-50" referrerPolicy="no-referrer"  />
       
       {/* Warm beige overlay on top of the pattern */}
       <div className="fixed inset-0 w-full h-full bg-[#FBF5F2]/40 pointer-events-none -z-40" />
@@ -979,6 +1034,7 @@ export default function App() {
               setCurrentView('login');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            clearCart={handleClearCart}
             onCheckoutSuccess={() => {
               handleClearCart();
               setGlobalDiscountCode('');
@@ -1114,7 +1170,7 @@ export default function App() {
                     alt="Chạm Logo" 
                     className="h-32 sm:h-40 md:h-44 w-auto object-contain drop-shadow-2xl"
                     referrerPolicy="no-referrer"
-                   loading="lazy" />
+                   />
                 </button>
                 <div className="flex items-center justify-center gap-4 text-white w-full -mt-2">
                   <a href="https://www.facebook.com/profile.php?id=61591049410705" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
@@ -1202,12 +1258,12 @@ export default function App() {
                           <span className="font-black text-[#00687A] text-xs uppercase tracking-wider">CASH</span>
                         </div>
                         <div className="h-10 flex-1 bg-white rounded-xl border border-gray-200 flex items-center justify-center p-2 overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-default">
-                          <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="h-full w-full object-contain" referrerPolicy="no-referrer"  loading="lazy" />
+                          <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1a5b754e8930371efb213eda348b1e56f82ec6ef/MOMO-Logo-App.png" alt="MoMo" className="h-full w-full object-contain" referrerPolicy="no-referrer"  />
                         </div>
                       </div>
                       {/* Row 2: VietQR */}
                       <div className="h-10 w-full bg-white rounded-xl border border-gray-200 flex items-center justify-center p-2 overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-default">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="h-full object-contain max-w-[80px]" referrerPolicy="no-referrer"  loading="lazy" />
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/VietQR_Logo.png" alt="VietQR" className="h-full object-contain max-w-[80px]" referrerPolicy="no-referrer"  />
                       </div>
                     </div>
                  </div>

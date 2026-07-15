@@ -261,7 +261,7 @@ export const CollectionChamToi: React.FC<CollectionChamToiProps> = ({
                         )}
                         alt={font.nameEn}
                         className={`w-full h-full max-w-[600px] md:max-w-[800px] object-contain drop-shadow-2xl mix-blend-multiply animate-float z-20 transition-transform duration-700 ease-out ${transformClass}`}
-                       referrerPolicy="no-referrer"  loading="lazy" />
+                       referrerPolicy="no-referrer"  />
                     );
                   })()}
                 </div>

@@ -39,10 +39,15 @@ export const createOrdersSheet = async (accessToken: string) => {
 };
 
 export const getOrCreateSpreadsheet = async (accessToken: string) => {
-  let id = localStorage.getItem(LOCAL_STORAGE_KEY);
+  let id = null;
+  try {
+    id = localStorage.getItem(LOCAL_STORAGE_KEY);
+  } catch(e) {}
   if (!id) {
     id = await createOrdersSheet(accessToken);
-    localStorage.setItem(LOCAL_STORAGE_KEY, id);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, id);
+    } catch(e) {}
   }
   return id;
 };
@@ -66,7 +71,7 @@ export const recordOrderToSheet = async (
   if (!response.ok) {
     // If it fails, maybe the spreadsheet was deleted, let's try to clear id and recreate next time
     if (response.status === 404) {
-       localStorage.removeItem(LOCAL_STORAGE_KEY);
+       try { localStorage.removeItem(LOCAL_STORAGE_KEY); } catch(e) {}
        throw new Error('Spreadsheet not found. It will be recreated on next order.');
     }
     throw new Error('Failed to append to spreadsheet');

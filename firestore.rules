@@ -29,8 +29,15 @@ service cloud.firestore {
 
     match /orders/{orderId} {
       allow create: if true;
-      allow get, update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || resource.data.userId == 'guest';
+      allow get, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || resource.data.userId == 'guest';
       allow list: if true;
+      allow update: if isAdmin() || (
+        ((isSignedIn() && resource.data.userId == request.auth.uid) || resource.data.userId == 'guest')
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.items == resource.data.items
+        && request.resource.data.total == resource.data.total
+        && request.resource.data.paymentStatus != 'Đã thanh toán'
+      );
     }
 
     match /wishlists/{wishlistId} {
@@ -42,6 +49,7 @@ service cloud.firestore {
     match /admin/{document} {
       allow read: if true;
       allow write: if isAdmin();
+      
     }
   }
 }

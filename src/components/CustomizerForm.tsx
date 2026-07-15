@@ -935,7 +935,7 @@ export const CustomizerForm: React.FC<CustomizerFormProps> = ({
                                  <input type="radio" disabled={!!isSoldOut} className="hidden" checked={customization.selectedZodiacCharmId === charm.id} onChange={() => onUpdate({ selectedZodiacCharmId: charm.id, ...(charm.element ? { element: charm.element } : {}) })} />
                                  {charm.imageUrl ? (
                                    <div className="w-11 h-11 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden relative">
-                                     <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  loading="lazy" />
+                                     <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  />
                                      {isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}
                                    </div>
                                  ) : <span className="text-3xl relative">{charm.emoji}{isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}</span>}
@@ -983,7 +983,7 @@ export const CustomizerForm: React.FC<CustomizerFormProps> = ({
                                  <input type="radio" disabled={!!isSoldOut} className="hidden" checked={customization.selectedZodiacCharmId2 === charm.id} onChange={() => onUpdate({ selectedZodiacCharmId2: charm.id, ...(charm.element ? { partnerElement: charm.element } : {}) })} />
                                  {charm.imageUrl ? (
                                    <div className="w-11 h-11 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden relative">
-                                     <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  loading="lazy" />
+                                     <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  />
                                      {isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}
                                    </div>
                                  ) : <span className="text-3xl relative">{charm.emoji}{isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}</span>}
@@ -1033,7 +1033,7 @@ export const CustomizerForm: React.FC<CustomizerFormProps> = ({
                                <input type="radio" disabled={!!isSoldOut} className="hidden" checked={customization.selectedZodiacCharmId === charm.id} onChange={() => onUpdate({ selectedZodiacCharmId: charm.id, ...(charm.element ? { element: charm.element } : {}) })} />
                                {charm.imageUrl ? (
                                  <div className="w-11 h-11 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden relative">
-                                   <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  loading="lazy" />
+                                   <img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.5] hover:scale-[1.75] transition-transform duration-300"  referrerPolicy="no-referrer"  />
                                    {isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}
                                  </div>
                                ) : <span className="text-3xl relative">{charm.emoji}{isSoldOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-red-500/50 rotate-45" /></div>}</span>}
@@ -1129,7 +1129,7 @@ export const CustomizerForm: React.FC<CustomizerFormProps> = ({
                                         onChange={() => (mode === 'couple' && activeTab === 'p2') ? toggleSticker2(charm.id) : toggleSticker(charm.id)} 
                                       />
                                       {charm.imageUrl ? (
-                                        <div className="w-14 h-14 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden"><img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.75] hover:scale-[2] transition-transform duration-300"  referrerPolicy="no-referrer"  loading="lazy" /></div>
+                                        <div className="w-14 h-14 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden"><img src={charm.imageUrl} alt="" className="w-full h-full object-cover scale-[1.75] hover:scale-[2] transition-transform duration-300"  referrerPolicy="no-referrer"  /></div>
                                       ) : <span className="text-4xl">{charm.emoji}</span>}
                                       <div className="flex flex-col flex-1">
                                         <span className="font-bold text-xs uppercase">{lang === 'vi' ? charm.vietnameseName : charm.name}</span>

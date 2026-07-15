@@ -12,9 +12,16 @@
       window.gtag = gtag;
       gtag('js', new Date());
 
+      // Tag hiện tại (chứa cả data self learning)
       gtag('config', 'G-3VH6JCVYEC', {
-        cookie_flags: 'SameSite=None;Secure'
+        cookie_flags: 'SameSite=None;Secure',
+        // Thêm custom parameters để phân biệt data của project GenLang này
+        app_name: 'cham_studio_genlang',
+        app_source: 'genlang'
       });
+      // Nếu bạn có một mã GA4 mới dành riêng cho GenLang, bạn có thể uncomment dòng dưới đây và thay G-NEW_ID bằng mã của bạn.
+      // Việc này (Dual-tagging) giúp gửi song song data cho cả tag cũ và tag mới, không làm mất dữ liệu tháng đầu tiên.
+      // gtag('config', 'G-NEW_ID');
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

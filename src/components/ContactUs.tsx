@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Mail, Instagram, Send, Sparkles, CheckCircle2 } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
+
 interface ContactUsProps {
   lang: 'vi' | 'en';
 }
@@ -25,7 +28,7 @@ export const ContactUs: React.FC<ContactUsProps> = ({ lang }) => {
     setIsSubmitting(true);
     
     try {
-      await fetch('/api/contact-us', {
+      await fetch(`${API_BASE}/api/contact-us`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

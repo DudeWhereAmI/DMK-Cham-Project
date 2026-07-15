@@ -15,7 +15,7 @@ export const PngLogoCircular: React.FC<PngLogoProps> = ({ className = 'h-28 w-au
       className={`${className} object-contain transition-all duration-300`} 
       alt={alt} 
       referrerPolicy="no-referrer" 
-     loading="lazy" />
+     />
   );
 };
 
@@ -26,7 +26,7 @@ export const PngLogoHorizontal: React.FC<PngLogoProps> = ({ className = 'h-14 w-
       className={`${className} object-contain transition-all duration-300`} 
       alt={alt} 
       referrerPolicy="no-referrer" 
-     loading="lazy" />
+     />
   );
 };
 

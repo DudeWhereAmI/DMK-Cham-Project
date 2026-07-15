@@ -160,7 +160,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                          src={getCartItemImage(item)} 
                          alt={item.product?.name} 
                          className="w-full h-full object-cover mix-blend-multiply"
-                        referrerPolicy="no-referrer"  loading="lazy" />
+                        referrerPolicy="no-referrer"  />
                     </div>
 
                     {/* Specifications detail listing */}

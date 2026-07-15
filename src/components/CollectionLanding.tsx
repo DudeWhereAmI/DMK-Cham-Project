@@ -190,7 +190,7 @@ export const CollectionLanding: React.FC<CollectionLandingProps> = ({
                         src={element.guardianImg} 
                         alt={element.guardianEn} 
                         className={`${imgSizeClass} object-contain drop-shadow-2xl mix-blend-multiply animate-float ${imgScaleClass} ${imgTranslateClass} z-20 transition-all duration-700 ease-out ${isSoldOut ? 'opacity-40 grayscale' : ''}`}
-                       referrerPolicy="no-referrer"  loading="lazy" />
+                       referrerPolicy="no-referrer"  />
                       {isSoldOut && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
                           <div className="bg-red-600/90 text-white font-black text-sm sm:text-lg tracking-[0.2em] px-4 py-2 transform -rotate-12 border-2 border-red-500 shadow-2xl backdrop-blur-sm">

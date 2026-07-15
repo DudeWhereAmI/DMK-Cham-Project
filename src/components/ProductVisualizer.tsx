@@ -312,7 +312,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
         className={`${getImgSizeClass(element.type, false, activeItem === 1 && isPhaLeDan)} object-contain select-none transition-transform duration-100 ease-out ${isP1SoldOut ? 'opacity-50 grayscale' : ''}`}
         draggable={false}
         referrerPolicy="no-referrer"
-       loading="lazy" />
+       />
       {isP1SoldOut && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
           <div className="bg-red-600/90 text-white font-black text-2xl md:text-4xl tracking-[0.2em] px-8 py-3 transform -rotate-12 border-4 border-red-500 shadow-2xl backdrop-blur-sm">
@@ -379,7 +379,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
         </h3>
         <div className="relative w-full flex-1 bg-white/60 backdrop-blur-md border border-white/80 rounded-sm flex items-center justify-center overflow-hidden shadow-sm group">
           <div className="absolute inset-0 bg-gradient-to-br from-[#00687A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-          <img src={currentImage} alt="Side 1" className={`${getImgSizeClass(element.type, mode === 'double-sided' || mode === 'couple', isPhaLeDan)} object-contain select-none transition-transform duration-700 ease-out ${p1ScaleClass} ${isP1SoldOut ? 'opacity-50 grayscale' : ''}`} referrerPolicy="no-referrer"  loading="lazy" />
+          <img src={currentImage} alt="Side 1" className={`${getImgSizeClass(element.type, mode === 'double-sided' || mode === 'couple', isPhaLeDan)} object-contain select-none transition-transform duration-700 ease-out ${p1ScaleClass} ${isP1SoldOut ? 'opacity-50 grayscale' : ''}`} referrerPolicy="no-referrer"  />
           {isP1SoldOut && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <div className="bg-red-600/90 text-white font-black text-sm sm:text-lg tracking-[0.2em] px-4 py-2 transform -rotate-12 border-2 border-red-500 shadow-2xl backdrop-blur-sm">
@@ -402,7 +402,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
         </h3>
         <div className="relative w-full flex-1 bg-white/60 backdrop-blur-md border border-white/80 rounded-sm flex items-center justify-center overflow-hidden shadow-sm group">
           <div className="absolute inset-0 bg-gradient-to-tl from-[#E28C9A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-          <img src={partnerImage} alt="Side 2" className={`${getImgSizeClass(mode === 'double-sided' ? element.type : customization.partnerElement, mode === 'double-sided' || mode === 'couple', isPhaLeDan2)} object-contain select-none transition-transform duration-700 ease-out ${p2ScaleClass} ${isP2SoldOut ? 'opacity-50 grayscale' : ''}`} referrerPolicy="no-referrer"  loading="lazy" />
+          <img src={partnerImage} alt="Side 2" className={`${getImgSizeClass(mode === 'double-sided' ? element.type : customization.partnerElement, mode === 'double-sided' || mode === 'couple', isPhaLeDan2)} object-contain select-none transition-transform duration-700 ease-out ${p2ScaleClass} ${isP2SoldOut ? 'opacity-50 grayscale' : ''}`} referrerPolicy="no-referrer"  />
           {isP2SoldOut && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <div className="bg-red-600/90 text-white font-black text-sm sm:text-lg tracking-[0.2em] px-4 py-2 transform -rotate-12 border-2 border-red-500 shadow-2xl backdrop-blur-sm">
@@ -435,7 +435,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
               }}
               className={`relative flex items-center justify-center flex-shrink-0 w-20 h-24 bg-[#F3F3F3] rounded-sm overflow-hidden border-2 transition-colors ${idx === safeIndex ? (activeItem === 1 ? 'border-[#00687A]' : 'border-[#E28C9A]') : 'border-transparent'}`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover scale-[1.2] select-none pointer-events-none origin-center" referrerPolicy="no-referrer"  loading="lazy" />
+              <img src={img} alt="" className="w-full h-full object-cover scale-[1.2] select-none pointer-events-none origin-center" referrerPolicy="no-referrer"  />
             </button>
           ))}
         </div>
@@ -522,7 +522,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
                       transform: `translateZ(${i * 5}px) scale(0.95)`,
                       opacity: i === 4 ? 1 : 0.4
                     }}
-                   loading="lazy" />
+                   />
                 ))}
               </div>
             ) : (
@@ -531,7 +531,7 @@ export const ProductVisualizer: React.FC<ProductVisualizerProps> = ({
                 alt={product.name} 
                 className="w-full h-full object-contain p-8 md:p-16 select-none cursor-default transition-transform duration-100 ease-out"
                 referrerPolicy="no-referrer"
-               loading="lazy" />
+               />
             )}
           </div>
 

@@ -18,7 +18,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
              className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
              alt="Chạm Studio Workspace Background" 
              referrerPolicy="no-referrer"
-            loading="lazy" />
+            />
         </div>
         {/* Gradient overlays to make text readable */}
         <div className="absolute inset-0 bg-[#FBF5F2]/40" />
@@ -73,7 +73,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
              className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
              alt="Chạm Brand Meaning Background" 
              referrerPolicy="no-referrer"
-            loading="lazy" />
+            />
         </div>
         {/* Gradient overlays to make text readable, this time fading from Right to Left */}
         <div className="absolute inset-0 bg-[#FBF5F2]/40" />
@@ -86,12 +86,12 @@ export const AboutUs: React.FC<AboutUsProps> = ({ lang }) => {
             className="w-full max-w-[250px] md:max-w-[500px] h-auto object-contain drop-shadow-2xl opacity-90 transition-transform duration-700 hover:scale-105" 
             alt="Chạm Large Logo" 
             referrerPolicy="no-referrer"
-           loading="lazy" />
+           />
         </div>
 
         <div className="relative z-20 w-full md:w-1/2 max-w-2xl px-6 md:px-16 py-12 space-y-8 flex flex-col items-start md:items-end text-left md:text-right">
            <div className="bg-white/50 backdrop-blur-md p-3 px-5 rounded-2xl shadow-sm mb-4">
-             <img src={LOGO_HORIZONTAL_URL} className="h-8 md:h-10 w-auto object-contain" alt="Chạm Logo"  referrerPolicy="no-referrer"  loading="lazy" />
+             <img src={LOGO_HORIZONTAL_URL} className="h-8 md:h-10 w-auto object-contain" alt="Chạm Logo"  referrerPolicy="no-referrer"  />
            </div>
            
            <h2 className="font-serif text-3xl md:text-5xl text-[#00687A] font-bold uppercase tracking-tight">

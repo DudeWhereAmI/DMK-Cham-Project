@@ -117,7 +117,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                          src={getCartItemImage(item)} 
                          alt={item.product?.name} 
                          className="w-full h-full object-contain mix-blend-multiply"
-                        referrerPolicy="no-referrer"  loading="lazy" />
+                        referrerPolicy="no-referrer"  />
                     </div>
                     
                     {/* Item Details */}
@@ -301,7 +301,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                       src={product.images['none'] || Object.values(product.images)[0] || ''} 
                       alt={lang === 'vi' ? product.vietnameseName : product.name} 
                       className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                     referrerPolicy="no-referrer"  loading="lazy" />
+                     referrerPolicy="no-referrer"  />
                     <button className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
                       <Heart className="w-6 h-6" />
                     </button>

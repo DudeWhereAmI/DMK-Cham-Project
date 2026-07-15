@@ -2,17 +2,70 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import nodemailer from "nodemailer";
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import { CHARMS, ELEMENTS } from "./src/data";
 
 dotenv.config();
 
+
+let adminDb = null;
+try {
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+    const serviceAccount = {
+      projectId: "gen-lang-client-0149031439",
+      clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      privateKey: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    };
+    const adminApp = initializeApp({
+      credential: cert(serviceAccount)
+    });
+    adminDb = getFirestore(adminApp);
+    adminDb.settings({ databaseId: 'ai-studio-8076b27e-2c83-44c0-bf0c-2588aebf752d' });
+    console.log("Firebase Admin initialized for inventory updates");
+  }
+} catch (err) {
+  console.error("Failed to initialize Firebase Admin:", err);
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json({ limit: '10mb' }));
+
+
+  // API route to update inventory as admin
+  app.post("/api/update-inventory-admin", async (req, res) => {
+    try {
+      if (!adminDb) {
+        return res.status(500).json({ error: "Admin DB not initialized" });
+      }
+      const { newInventory, historyLog } = req.body;
+      if (!newInventory) {
+        return res.status(400).json({ error: "Missing newInventory" });
+      }
+      const docRef = adminDb.collection('admin').doc('inventory');
+      
+      const updateData: any = {
+        products: newInventory.products,
+        charms: newInventory.charms,
+        updatedAt: new Date().toISOString()
+      };
+      if (req.body.history) {
+        updateData.history = req.body.history;
+      }
+      
+      await docRef.set(updateData, { merge: true });
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to update inventory as admin:", error);
+      return res.status(500).json({ error: "Failed to update inventory" });
+    }
+  });
 
   // API route to send email
   app.post("/api/send-preorder-email", async (req, res) => {
@@ -203,6 +256,87 @@ async function startServer() {
   });
 
   // API route to record preorder to Google Sheets
+
+// Helper to normalize element string
+const normalizeElement = (s) => {
+  if (!s) return s;
+  s = s.toUpperCase();
+  if (s.includes('KIM')) return 'KIM';
+  if (s.includes('THỦY') || s.includes('THUY')) return 'THUY';
+  if (s.includes('HỎA') || s.includes('HOA')) return 'HOA';
+  if (s.includes('MỘC') || s.includes('MOC')) return 'MOC';
+  if (s.includes('THỔ') || s.includes('THO')) return 'THO';
+  return s;
+};
+
+async function decrementInventoryFromOrder(orderId, items) {
+  if (!adminDb) return;
+  try {
+    const docRef = adminDb.collection('admin').doc('inventory');
+    await adminDb.runTransaction(async (transaction) => {
+      const docSnap = await transaction.get(docRef);
+      if (!docSnap.exists) return;
+      const inv = docSnap.data();
+      let products = inv.products || {};
+      let historyLogs = [];
+
+      items.forEach(item => {
+        const qty = item.quantity || 1;
+        const cat = item.product?.category;
+        if (!cat) return;
+        const { element, partnerElement } = item.customization || {};
+        let comboId = item.customization?.comboId;
+        if (partnerElement && !comboId) comboId = 'mirror_combo';
+        
+        const normEl = normalizeElement(element);
+        const normPartnerEl = normalizeElement(partnerElement);
+
+        const actualCat1 = (cat === 'combo' && comboId === 'mirror_combo') ? 'mirror' : (cat === 'combo' ? 'clip-1' : cat);
+        if (products[actualCat1] && products[actualCat1][normEl] !== undefined) {
+          products[actualCat1][normEl] = Math.max(0, products[actualCat1][normEl] - qty);
+          historyLogs.push({ category: actualCat1, item: normEl, qty, type: 'product' });
+        }
+        
+        if (normPartnerEl) {
+          const actualCat2 = comboId === 'mirror_combo' ? 'mirror' : (cat === 'combo' ? 'clip-1' : cat);
+          if (products[actualCat2] && products[actualCat2][normPartnerEl] !== undefined) {
+            products[actualCat2][normPartnerEl] = Math.max(0, products[actualCat2][normPartnerEl] - qty);
+            historyLogs.push({ category: actualCat2, item: normPartnerEl, qty, type: 'product' });
+          }
+        }
+        
+        // charms
+        const charmIds = [];
+        if (item.customization?.selectedZodiacCharmId) charmIds.push(item.customization.selectedZodiacCharmId);
+        if (item.customization?.selectedZodiacCharmId2) charmIds.push(item.customization.selectedZodiacCharmId2);
+        
+        let charms = inv.charms || {};
+        charmIds.forEach(cId => {
+          if (cId && charms[cId] !== undefined) {
+            charms[cId] = Math.max(0, charms[cId] - qty);
+            historyLogs.push({ category: 'charm', item: cId, qty, type: 'charm' });
+          }
+        });
+        inv.charms = charms;
+      });
+
+      if (historyLogs.length > 0) {
+        let history = inv.history || [];
+        history.unshift({
+          id: `LOG-${orderId}-${Date.now()}`,
+          orderId: orderId,
+          timestamp: new Date().toISOString(),
+          decrements: historyLogs
+        });
+        transaction.update(docRef, { products, charms: inv.charms, history, updatedAt: new Date().toISOString() });
+      }
+    });
+    console.log(`Successfully decremented inventory for order ${orderId}`);
+  } catch (err) {
+    console.error("Failed to decrement inventory in transaction:", err);
+  }
+}
+
   app.post("/api/record-preorder-sheet", async (req, res) => {
     try {
       const { orderId, userId, customerInfo, items, subtotal, packagingFee, total, discountAmount, discountCode, wrappingOption, paymentMethod, deliveryMethod, createdAt } = req.body;
@@ -211,6 +345,7 @@ async function startServer() {
         console.warn("Google Sheets credentials not configured. Not saving to sheet.");
         return res.json({ success: true, message: "Credentials not configured" });
       }
+      await decrementInventoryFromOrder(orderId, items).catch(console.error);
 
       // Format private key (replace literal \n with actual newlines if needed)
       const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');

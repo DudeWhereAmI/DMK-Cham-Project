@@ -1,0 +1,35 @@
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+
+const firebaseConfig = {
+  "projectId": "gen-lang-client-0149031439",
+  "appId": "1:1053325771454:web:0c86a8fae3721202e2d4ef",
+  "apiKey": "AIzaSyD1Zr1s8_w95aqRNOWH__MPTkFx_Ixxdw0",
+  "authDomain": "gen-lang-client-0149031439.firebaseapp.com",
+  "storageBucket": "gen-lang-client-0149031439.firebasestorage.app",
+  "messagingSenderId": "1053325771454",
+  "measurementId": "G-6V71DS7F59",
+  "databaseId": "ai-studio-8076b27e-2c83-44c0-bf0c-2588aebf752d",
+  "firestoreDatabaseId": "ai-studio-8076b27e-2c83-44c0-bf0c-2588aebf752d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const auth = getAuth(app);
+
+async function test() {
+  try {
+    // Try without auth
+    try {
+      const q = query(collection(db, 'orders'), where('userId', '==', 'randomuser'));
+      await getDocs(q);
+      console.log("Without auth: Success (BAD!)");
+    } catch(err) {
+      console.log("Without auth:", err.code);
+    }
+  } catch (err) {
+    console.error("Test error:", err);
+  }
+}
+test();

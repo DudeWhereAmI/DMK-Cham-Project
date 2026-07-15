@@ -105,7 +105,7 @@ export const VisionMission: React.FC<VisionMissionProps> = ({ lang }) => {
                className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
                alt="Chạm Studio Workspace Background" 
                referrerPolicy="no-referrer"
-              loading="lazy" />
+              />
           </div>
           {/* Gradient overlays to make text readable */}
           <div className="absolute inset-0 bg-[#FAF4EF]/40" />
@@ -136,7 +136,7 @@ export const VisionMission: React.FC<VisionMissionProps> = ({ lang }) => {
                className="w-full h-full object-cover opacity-60 transition-transform duration-[2s] ease-out group-hover:scale-105" 
                alt="Chạm Studio Workspace Background" 
                referrerPolicy="no-referrer"
-              loading="lazy" />
+              />
           </div>
           {/* Gradient overlays to make text readable */}
           <div className="absolute inset-0 bg-[#FBF5F2]/40" />

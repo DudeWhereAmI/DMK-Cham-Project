@@ -301,7 +301,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
           <div className="w-full flex justify-center items-center mt-4">
              {/* Dynamic Rotating Collection Area */}
              <div className="relative w-full max-w-7xl flex flex-col justify-between items-center min-h-[850px] xs:min-h-[800px] sm:min-h-[700px] md:min-h-[480px] lg:min-h-[500px] bg-white/95 backdrop-blur-md rounded-[32px] border border-white/50 shadow-lg overflow-hidden p-6 pt-10 pb-8">
-               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  loading="lazy" />
+               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                <div className="relative z-10 w-full flex-1 flex justify-center items-center">
                   {collectionsData.map((el, index) => {
                     const isActive = index === activeCollectionIndex;
@@ -345,7 +345,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
                                             })`,
                                             zIndex: 30 - i
                                           }}
-                                         loading="lazy" />
+                                         />
                                       );
                                     })}
                                   </div>
@@ -360,7 +360,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
                                         : 'max-w-[320px] md:max-w-[460px] lg:max-w-[500px] xl:max-w-[560px]'
                                     }`}
                                     key={`single-${subImageIndex}`} // force animation on swap
-                                   loading="lazy" />
+                                   />
                                 )}
                              </div>
                            )}
@@ -431,7 +431,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
           
           <div className="w-full flex justify-center items-center mt-4">
              <div className="relative w-full max-w-7xl flex flex-col justify-between items-center min-h-[540px] md:min-h-[480px] lg:min-h-[500px] bg-white/95 backdrop-blur-md rounded-[32px] border border-white/50 shadow-lg overflow-hidden p-6 pt-10 pb-8">
-               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  loading="lazy" />
+               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                <div className="relative z-10 w-full flex-1 flex justify-center items-center">
                   {materialsData.map((mat, index) => {
                     const isActive = index === activeMaterialIndex;
@@ -452,7 +452,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
                              alt={lang === 'vi' ? mat.nameVi : mat.nameEn}
                              referrerPolicy="no-referrer"
                              className="w-[280px] md:w-[400px] lg:w-[500px] max-h-[350px] md:max-h-[450px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-                            loading="lazy" />
+                            />
                         </div>
   
                         {/* Brief description box */}
@@ -492,7 +492,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
           <div className="w-full flex justify-center items-center mt-4">
              <div className="relative w-full max-w-7xl flex flex-col justify-between items-center min-h-[540px] md:min-h-[480px] lg:min-h-[500px] bg-white/95 backdrop-blur-md rounded-[32px] border border-white/50 shadow-lg overflow-hidden p-6 pt-10 pb-8">
-               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  loading="lazy" />
+               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                <div className="relative z-10 w-full flex-1 flex justify-center items-center">
                   
                   {/* Single mirror data switching images */}
@@ -511,7 +511,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
                                   alt="5 Mirrors"
                                   referrerPolicy="no-referrer"
                                   className="absolute w-[80%] h-[80%] md:w-[75%] md:h-[75%] max-w-[450px] object-contain drop-shadow-2xl mix-blend-multiply z-30 transition-transform duration-700 ease-out hover:scale-105"
-                                 loading="lazy" />
+                                 />
                        </div>
                     </div>
                     
@@ -568,7 +568,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
           <div className="w-full flex justify-center items-center mt-4">
              {/* Dynamic Rotating Mascot Area */}
              <div className="relative w-full max-w-7xl flex flex-col justify-between items-center min-h-[540px] md:min-h-[480px] lg:min-h-[500px] bg-white/95 backdrop-blur-md rounded-[32px] border border-white/50 shadow-lg overflow-hidden p-6 pt-10 pb-8">
-               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  loading="lazy" />
+               <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                <div className="relative z-10 w-full flex-1 flex justify-center items-center">
                   {elementsData.map((el, index) => {
                     const isActive = index === activeElementIndex;
@@ -593,7 +593,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, onEnterShop, onN
                              alt={lang === 'vi' ? el.guardianVi : el.guardianEn}
                              referrerPolicy="no-referrer"
                              className="w-[280px] md:w-[400px] lg:w-[500px] max-h-[350px] md:max-h-[450px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-                            loading="lazy" />
+                            />
                         </div>
    
                         {/* Brief description box */}
