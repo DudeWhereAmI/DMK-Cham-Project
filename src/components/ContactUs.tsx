@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Instagram, Send, Sparkles, CheckCircle2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = '';
 
 
 interface ContactUsProps {

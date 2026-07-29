@@ -23,6 +23,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 // server.ts
 var import_express = __toESM(require("express"), 1);
+var import_cors = __toESM(require("cors"), 1);
 var import_path = __toESM(require("path"), 1);
 var import_vite = require("vite");
 var import_nodemailer = __toESM(require("nodemailer"), 1);
@@ -280,6 +281,7 @@ try {
 }
 async function startServer() {
   const app = (0, import_express.default)();
+  app.use((0, import_cors.default)());
   const PORT = 3e3;
   app.use(import_express.default.json({ limit: "10mb" }));
   app.post("/api/update-inventory-admin", async (req, res) => {
@@ -624,7 +626,7 @@ async function startServer() {
           }).join(", ");
           details.push(`Trang tr\xED ${sp2Label}: ${stickerNames}`);
         }
-        let itemName = item.product.vietnameseName || item.product.name;
+        let itemName = item.product?.vietnameseName || item.product?.name || "Unknown Product";
         if (c.comboId === "couple_combo") {
           itemName = `Combo Ch\u1EA1m C\xF9ng Nhau (${itemName})`;
         } else if (c.comboId === "mirror_combo") {

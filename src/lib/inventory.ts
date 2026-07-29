@@ -2,7 +2,7 @@ import { ElementType } from '../types';
 import { doc, getDoc, setDoc, collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = '';
 
 
 const parseFirestoreResponse = (fields: any): any => {
@@ -72,11 +72,33 @@ export const saveInventoryToFirestore = async (inv: any, history?: any[]) => {
     saveInventoryHistory(history);
   }
   try {
+    const currentHistory = history || getInventoryHistory();
+    // Calculate new initial stock based on current stock + total historical deductions
+    const initialProducts = JSON.parse(JSON.stringify(inv.products));
+    const initialCharms = JSON.parse(JSON.stringify(inv.charms));
+    
+    currentHistory.forEach((log: any) => {
+      if (log.orderId === 'Admin Update') return; // Do not add admin manual adjustments to initial stock, so they permanently alter the base stock
+      (log.decrements || []).forEach((dec: any) => {
+        if (dec.type === 'product' && dec.category && dec.item) {
+          if (!initialProducts[dec.category]) initialProducts[dec.category] = {};
+          if (initialProducts[dec.category][dec.item] === undefined) initialProducts[dec.category][dec.item] = 0;
+          initialProducts[dec.category][dec.item] += dec.qty;
+        } else if (dec.type === 'charm' && dec.item) {
+          const cType = dec.item.replace('zodiac-', '');
+          if (initialCharms[cType] === undefined) initialCharms[cType] = 0;
+          initialCharms[cType] += dec.qty;
+        }
+      });
+    });
+
     const docRef = doc(db, 'admin', 'inventory');
     await setDoc(docRef, {
       products: inv.products,
       charms: inv.charms,
-      history: history || getInventoryHistory(),
+      initialProducts: initialProducts,
+      initialCharms: initialCharms,
+      history: currentHistory,
       updatedAt: new Date().toISOString()
     });
   } catch (err: any) {
@@ -101,6 +123,26 @@ export const saveInventoryToFirestore = async (inv: any, history?: any[]) => {
   }
 };
 
+export const fetchInitialInventoryFromFirestore = async () => {
+  let baseInv = JSON.parse(JSON.stringify(INITIAL_INVENTORY));
+  try {
+    const docRef = doc(db, 'admin', 'inventory');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.initialProducts && data.initialCharms) {
+        baseInv = {
+          products: data.initialProducts,
+          charms: data.initialCharms
+        };
+      }
+    }
+  } catch (e) {
+    console.error("Failed to fetch dynamic initial inventory:", e);
+  }
+  return baseInv;
+};
+
 export const INITIAL_INVENTORY: any = {
   products: {
     'mirror': {
@@ -108,18 +150,18 @@ export const INITIAL_INVENTORY: any = {
       'HOA': 25,
       'MOC': 5,
       'THUY': 5,
-      'THO': 38
+      'THO': 35
     },
     'clip-1': {
       'KIM': 18,
-      'HOA': 34,
-      'MOC': 12,
-      'THUY': 14,
-      'THO': 33
+      'HOA': 31,
+      'MOC': 13,
+      'THUY': 13,
+      'THO': 34
     },
     'clip-2': {
-      'KIM': 30,
-      'HOA': 28,
+      'KIM': 28,
+      'HOA': 26,
       'MOC': 11,
       'THUY': 12,
       'THO': 10
@@ -236,9 +278,9 @@ export const recalculateInventoryFromOrders = (orders: any[], baseInv?: any, lim
     const statusLower = (order.status || '').toLowerCase();
     if (statusLower === 'draft' || statusLower.includes('cancelled') || statusLower.includes('hủy') || statusLower.includes('cancel')) return;
     
-    // Ignore test orders from hoangphucunknown@gmail.com
+    // Ignore test orders from hoangphucunknown@gmail.com and hla0712006@gmail.com
     const email = order.customerInfo?.email?.toLowerCase();
-    if (email === 'hoangphucunknown@gmail.com') return;
+    if (email === 'hoangphucunknown@gmail.com' || email === 'hla0712006@gmail.com') return;
 
     // Only start calculating from July 1st, 2026
     let orderTimeMs = 0;

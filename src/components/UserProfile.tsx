@@ -9,7 +9,7 @@ import { PRODUCTS, CHARMS, ELEMENTS } from '../data';
 import dmkBrandElement1 from '../assets/dmk_brand_element_1.svg';
 import mirrorVintage from '../assets/mirror_vintage.svg';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = '';
 
 
 const MIRROR_IMAGES_CHU_NOI: Record<string, string> = {
@@ -204,7 +204,7 @@ interface Order {
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishlistIds = [], onToggleWishlist, onSelectProduct }) => {
-  const isAllowedAdmin = auth.currentUser?.email === 'hoangphucunknown@gmail.com';
+  const isAllowedAdmin = auth.currentUser?.email === 'hoangphucunknown@gmail.com' || auth.currentUser?.email === 'hla0712006@gmail.com';
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'favorites' | 'settings' | 'inventory'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,7 +239,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
         const email = data.customerInfo?.email?.toLowerCase();
-        if (email === 'hoangphucunknown@gmail.com') {
+        if (email === 'hoangphucunknown@gmail.com' || email === 'hla0712006@gmail.com') {
           let createdAtMs = 0;
           if (data.createdAt) {
             if (typeof data.createdAt.toDate === 'function') {
@@ -469,7 +469,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
         fetchedOrders.push({ id: docSnap.id, ...docSnap.data() });
       });
       
-      const { inv, history } = recalculateInventoryFromOrders(fetchedOrders);
+      const { fetchInitialInventoryFromFirestore } = await import('../lib/inventory');
+      const baseInv = await fetchInitialInventoryFromFirestore();
+      
+      const { inv, history } = recalculateInventoryFromOrders(fetchedOrders, baseInv);
       setLocalInv(inv);
       setLocalHistory(history);
       if (!isAuto) {
@@ -506,7 +509,53 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
     if (!localInv) return;
     try {
       setIsSavingInventory(true);
-      await saveInventoryToFirestore(localInv, localHistory.length > 0 ? localHistory : undefined);
+      
+      // Calculate diff to create admin log
+      const currentDbInv = await fetchInventoryFromFirestore();
+      const adminDecrements: any[] = [];
+      
+      if (currentDbInv) {
+        Object.keys(localInv.products || {}).forEach(cat => {
+          Object.keys(localInv.products[cat] || {}).forEach(el => {
+            const currentVal = currentDbInv.products?.[cat]?.[el] || 0;
+            const newVal = localInv.products[cat][el];
+            if (currentVal !== newVal) {
+              adminDecrements.push({
+                category: cat,
+                item: el,
+                qty: currentVal - newVal, 
+                type: 'product'
+              });
+            }
+          });
+        });
+        
+        Object.keys(localInv.charms || {}).forEach(el => {
+          const currentVal = currentDbInv.charms?.[el] || 0;
+          const newVal = localInv.charms[el];
+          if (currentVal !== newVal) {
+            adminDecrements.push({
+              category: 'charms',
+              item: `zodiac-${el}`,
+              qty: currentVal - newVal,
+              type: 'charm'
+            });
+          }
+        });
+      }
+      
+      const historyToSave = [...localHistory];
+      if (adminDecrements.length > 0) {
+        historyToSave.unshift({
+          id: `LOG-ADMIN-${Date.now()}`,
+          orderId: 'Admin Update',
+          timestamp: new Date().toISOString(),
+          decrements: adminDecrements
+        });
+        setLocalHistory(historyToSave);
+      }
+      
+      await saveInventoryToFirestore(localInv, historyToSave.length > 0 ? historyToSave : undefined);
       setHasUnsavedInventory(false);
       alert(lang === 'vi' ? 'Lưu thay đổi kho hàng thành công!' : 'Inventory saved successfully!');
     } catch (err) {
@@ -1784,14 +1833,20 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
                               </span>
                             </div>
                             <div className="text-xs font-medium text-slate-600">
-                              {lang === 'vi' ? 'Mã đơn hàng:' : 'Order ID:'} <span className="font-mono font-bold text-slate-900 underline">{log.orderId}</span>
+                              {log.orderId === 'Admin Update' ? (
+                                <span className="font-bold text-[#00687A]">{lang === 'vi' ? 'Điều chỉnh thủ công (Admin)' : 'Manual Adjustment (Admin)'}</span>
+                              ) : (
+                                <>{lang === 'vi' ? 'Mã đơn hàng:' : 'Order ID:'} <span className="font-mono font-bold text-slate-900 underline">{log.orderId}</span></>
+                              )}
                             </div>
                           </div>
                           <div className="space-y-2">
                             {(log.decrements || []).map((dec: any, idx: number) => (
                               <div key={idx} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-bold text-red-500 uppercase">-{dec.qty}</span>
+                                  <span className={`text-xs font-bold uppercase ${dec.qty < 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                    {dec.qty < 0 ? `+${Math.abs(dec.qty)}` : `-${dec.qty}`}
+                                  </span>
                                   <span className="text-slate-700 font-medium">
                                     {dec.type === 'charm' ? (lang === 'vi' ? 'Charm hoàng đạo' : 'Zodiac Charm') : (lang === 'vi' ? `Dòng ${getCategoryDisplayName(dec.category, lang)}` : `${getCategoryDisplayName(dec.category, lang)}`)}
                                   </span>

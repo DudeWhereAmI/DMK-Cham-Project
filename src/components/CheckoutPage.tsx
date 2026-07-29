@@ -5,10 +5,10 @@ import { PngLogoHorizontal } from './PngLogo';
 import { db, storage } from '../lib/firebase';
 import { collection, addDoc, doc, getDoc, Timestamp, setDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { X, CheckCircle, Tag, Copy, ShieldCheck, MapPin, UploadCloud } from 'lucide-react';
+import { X, CheckCircle, Tag, Copy, ShieldCheck, MapPin, UploadCloud , AlertTriangle } from 'lucide-react';
 import { MIRROR_IMAGES_CHU_NOI, MIRROR_IMAGES_LINH_VAT } from '../data';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = '';
 
 
 const NEW_WARDS: Record<string, string[]> = {
@@ -140,6 +140,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [addressWarning, setAddressWarning] = useState<string | null>(null);
   const [useOldAddress, setUseOldAddress] = useState(false);
+  const [orderWarnings, setOrderWarnings] = useState<string[]>([]);
+  const [checkoutError, setCheckoutError] = useState<{ message: string, orderId: string, timestamp: string } | null>(null);
+  const [showWarningsPopup, setShowWarningsPopup] = useState(false);
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -349,6 +352,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const sanitizedCart = JSON.parse(JSON.stringify(cart));
 
       let uploadedUrl = '';
+      const warnings: string[] = [];
+
       if (paymentProofFile) {
         try {
           const fileRef = ref(storage, `payment_proofs/${Date.now()}_${paymentProofFile.name}`);
@@ -358,14 +363,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         } catch (uploadError: any) {
           console.warn("Failed to upload payment proof to Storage:", uploadError);
           if (uploadError?.message?.includes('unauthorized') || uploadError?.code?.includes('unauthorized')) {
-            alert(lang === 'vi' 
-              ? 'Lỗi quyền truy cập Firebase Storage. Vui lòng vào Firebase Console -> Storage -> Rules và cấp quyền ghi (allow write: if true;).' 
-              : 'Firebase Storage permission denied. Please go to Firebase Console -> Storage -> Rules and allow writes.');
+            warnings.push(lang === 'vi' 
+              ? 'Ảnh minh chứng vi phạm chính sách hoặc không có quyền lưu trữ (Permission Denied). Đơn hàng đã được lưu nhưng không có ảnh minh chứng.'
+              : 'Payment proof upload failed due to storage rules. Order saved without proof image.');
           } else {
-            alert(lang === 'vi' ? 'Không thể tải ảnh lên Firebase Storage. Vui lòng thử lại.' : 'Failed to upload image to Firebase Storage. Please try again.');
+            warnings.push(lang === 'vi' ? 'Không thể tải ảnh minh chứng lên hệ thống.' : 'Could not upload payment proof.');
           }
-          setIsSubmitting(false);
-          return; // Stop the flow
         }
       }
 
@@ -387,8 +390,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         }
       }
 
-      // Call Express background email API (run in background)
-      const emailResponsePromise = fetch(`${API_BASE}/api/send-preorder-email`, {
+      // Call Express background email API
+      const emailPromise = fetch(`${API_BASE}/api/send-preorder-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -413,22 +416,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           }),
           totalAmount: total,
         })
-      });
-
-      const emailPromise = emailResponsePromise.then(async (res) => {
+      }).then(async (res) => {
         if (res.ok) {
           await setDoc(orderRef, { emailSent: true }, { merge: true }).catch(console.error);
+          return { success: true };
         } else {
-          try {
-            const text = await res.text();
-            console.error("Email API failed:", text);
-          } catch (_) {}
+          return { success: false, error: 'API not ok' };
         }
       }).catch(emailError => {
         console.error("Failed to trigger email:", emailError);
+        return { success: false, error: emailError };
       });
 
-      // Record to Google Sheets (always)
+      // Record to Google Sheets
       const sheetPromise = fetch(`${API_BASE}/api/record-preorder-sheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -452,23 +452,30 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       }).then(async (res) => {
         if (res.ok) {
           await setDoc(orderRef, { sheetRecorded: true }, { merge: true }).catch(console.error);
+          return { success: true };
         } else {
-          try {
-            const text = await res.text();
-            console.error("Sheet API failed:", text);
-          } catch (_) {}
+          return { success: false, error: 'API not ok' };
         }
       }).catch(sheetError => {
         console.error("Failed to record to Google Sheets:", sheetError);
+        return { success: false, error: sheetError };
       });
 
-      // Fire email and sheet updates in background without blocking UI
-      Promise.allSettled([emailPromise, sheetPromise]).then(() => {
-         console.log("Background order notifications completed.");
-         if (formData.email?.toLowerCase() !== 'hoangphucunknown@gmail.com') {
-           fetchInventoryFromFirestore().catch(console.error);
-         }
-      });
+      const [emailResult, sheetResult] = await Promise.all([emailPromise, sheetPromise]);
+      
+      if (!emailResult.success) {
+        warnings.push(lang === 'vi' ? `Không thể gửi email xác nhận (Lỗi: ${String(emailResult.error)}). Đơn hàng vẫn được lưu.` : `Failed to send confirmation email (Error: ${String(emailResult.error)}). Order is still saved.`);
+      }
+      
+      if (!sheetResult.success) {
+        warnings.push(lang === 'vi' ? `Lỗi kết nối Google Sheet (Lỗi: ${String(sheetResult.error)}). CSKH sẽ kiểm tra lại.` : `Failed to record to Sheet (Error: ${String(sheetResult.error)}). Support will review.`);
+      }
+      
+      if (formData.email?.toLowerCase() !== 'hoangphucunknown@gmail.com' && formData.email?.toLowerCase() !== 'hla0712006@gmail.com') {
+        fetchInventoryFromFirestore().catch(console.error);
+      }
+      
+
 
       // Track purchase event with GA
       if (typeof window.gtag === 'function') {
@@ -486,12 +493,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         });
       }
 
+      if (warnings.length > 0) {
+        setShowPreorderPopup(false);
+        setOrderWarnings(warnings);
+        setShowWarningsPopup(true);
+        setIsSubmitting(false);
+        return;
+      }
+
       // Show success screen within the popup
       setPreorderSuccess(true);
       if (clearCart) clearCart();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating order:", error);
-      alert(lang === 'vi' ? 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại' : 'Error creating order. Please try again');
+      setCheckoutError({
+        message: error.message || String(error),
+        orderId: currentOrderId || 'UNKNOWN',
+        timestamp: new Date().toLocaleString()
+      });
       setShowPreorderPopup(false);
     } finally {
       setIsSubmitting(false);
@@ -1006,6 +1025,56 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       </div>
 
+      
+      {showWarningsPopup && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="bg-amber-500 text-white p-6 text-center">
+              <AlertTriangle className="w-16 h-16 mx-auto mb-4" />
+              <h2 className="text-2xl font-semibold">
+                {lang === 'vi' ? 'Lưu ý Đơn hàng' : 'Order Warnings'}
+              </h2>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-gray-600 mb-4 text-center">
+                {lang === 'vi' 
+                  ? 'Đơn hàng của bạn đã được lưu thành công trên hệ thống. Tuy nhiên, có một số vấn đề nhỏ xảy ra:' 
+                  : 'Your order was saved successfully. However, there were some minor issues:'}
+              </p>
+              
+              <ul className="space-y-3 mb-6">
+                {orderWarnings.map((warning, idx) => (
+                  <li key={idx} className="flex items-start bg-amber-50 p-3 rounded-xl border border-amber-100">
+                    <AlertTriangle className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-amber-900">{warning}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="bg-gray-50 rounded-xl p-3 mb-6 text-xs text-gray-500 font-mono border border-gray-200">
+                <div>Order ID: {currentOrderId}</div>
+                <div>Time: {new Date().toLocaleString()}</div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowWarningsPopup(false);
+                  setPreorderSuccess(true);
+                  if (clearCart) clearCart();
+                  if (typeof window.scrollTo === 'function') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+                className="w-full bg-black text-white py-4 rounded-xl font-medium text-lg hover:bg-gray-800 transition-colors"
+              >
+                {lang === 'vi' ? 'Tiếp tục' : 'Continue'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirmPopup && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmPopup(false)}></div>
@@ -1286,6 +1355,52 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         </div>
       )}
 
+      {checkoutError && (
+        <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative">
+            <button onClick={() => setCheckoutError(null)} className="absolute top-4 right-4 text-red-200 hover:text-white transition-colors z-10">
+              <X className="w-6 h-6" />
+            </button>
+            <div className="bg-red-500 text-white p-6 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-600 opacity-20 pattern-diagonal-lines"></div>
+              <X className="w-16 h-16 mx-auto mb-4 relative z-10" />
+              <h2 className="text-2xl font-semibold relative z-10">
+                {lang === 'vi' ? 'Lỗi Xác Nhận Đơn Hàng' : 'Order Confirmation Error'}
+              </h2>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-gray-600 mb-6 text-center text-sm leading-relaxed">
+                {lang === 'vi' 
+                  ? 'Rất tiếc, đã xảy ra lỗi trong quá trình xử lý đơn hàng của bạn. Vui lòng chụp lại màn hình này và gửi cho CSKH để chúng tôi hỗ trợ bạn ngay lập tức.' 
+                  : 'An error occurred while processing your order. Please screenshot this page and send it to our customer support for immediate assistance.'}
+              </p>
+              
+              <div className="bg-gray-50 rounded-xl p-4 font-mono text-xs text-gray-700 break-all space-y-2 border border-gray-200">
+                <div className="flex flex-col">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-wider">Order ID</span>
+                  <span className="font-semibold text-gray-900">{checkoutError.orderId}</span>
+                </div>
+                <div className="flex flex-col mt-2">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-wider">Time</span>
+                  <span>{checkoutError.timestamp}</span>
+                </div>
+                <div className="flex flex-col mt-2">
+                  <span className="text-gray-400 text-[10px] uppercase tracking-wider">Error Details</span>
+                  <span className="text-red-600">{checkoutError.message}</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setCheckoutError(null)}
+                className="mt-6 w-full bg-black text-white py-3.5 rounded-xl font-medium text-base hover:bg-gray-800 transition-colors shadow-lg shadow-black/10 flex items-center justify-center gap-2"
+              >
+                {lang === 'vi' ? 'Đóng' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

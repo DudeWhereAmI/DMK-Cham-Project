@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import nodemailer from "nodemailer";
@@ -32,6 +33,7 @@ try {
 
 async function startServer() {
   const app = express();
+  app.use(cors());
   const PORT = 3000;
 
   app.use(express.json({ limit: '10mb' }));
@@ -437,7 +439,7 @@ async function decrementInventoryFromOrder(orderId, items) {
           details.push(`Trang trí ${sp2Label}: ${stickerNames}`);
         }
         
-        let itemName = item.product.vietnameseName || item.product.name;
+        let itemName = item.product?.vietnameseName || item.product?.name || 'Unknown Product';
         if (c.comboId === 'couple_combo') {
           itemName = `Combo Chạm Cùng Nhau (${itemName})`;
         } else if (c.comboId === 'mirror_combo') {
