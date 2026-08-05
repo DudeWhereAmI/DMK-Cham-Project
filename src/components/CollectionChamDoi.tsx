@@ -55,7 +55,7 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
   };
 
   return (
-    <div className="w-full h-[80vh] min-h-[700px] overflow-hidden flex flex-col md:flex-row">
+    <div className="w-full h-[100vh] min-h-[700px] md:h-[80vh] md:min-h-[600px] overflow-y-auto md:overflow-hidden flex flex-col md:flex-row">
       {STYLES.map((style, index) => {
         const isActive = activeIndex === index;
         
@@ -66,7 +66,7 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
             className={`
               relative flex flex-col md:flex-row items-center justify-center 
               transition-all duration-1000 ease-in-out overflow-hidden cursor-pointer
-              ${isActive ? 'flex-[4]' : 'flex-1'}
+              ${isActive ? "min-h-[100vh] h-max md:h-auto py-12 md:py-0 md:flex-[4] flex-shrink-0" : "h-[80px] min-h-[80px] md:h-auto md:flex-1 flex-shrink-0"}
             `}
             style={{ 
               backgroundColor: isActive ? style.colorHex : `${style.colorHex}40`,
@@ -94,12 +94,12 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
 
             {/* Active State Content */}
             <div className={`
-              w-full h-full flex flex-col md:flex-row items-center justify-between p-8 md:p-12 z-10 transition-opacity duration-1000 delay-300
+              w-full h-max min-h-full flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 p-8 md:p-12 z-10 transition-opacity duration-1000 delay-300
               ${isActive ? 'opacity-100' : 'opacity-0 hidden'}
             `}>
               
               {/* Left text */}
-              <div className="flex-1 flex flex-col items-start gap-4 z-30 relative md:mt-0 mt-8">
+              <div className="flex-1 flex flex-col items-start gap-4 z-30 relative mt-4 md:mt-0">
                 <div className="flex items-end gap-6 mb-2">
                   <span className="text-5xl md:text-6xl font-black text-white mix-blend-overlay">0{index + 1}</span>
                   <div className="flex flex-col items-start pb-1">
@@ -130,7 +130,7 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
               </div>
 
               {/* Center Image (Layering) */}
-              <div className="flex-[2] h-full flex items-center justify-center relative min-h-[300px] md:min-h-[400px]">
+              <div className="flex-none md:flex-[2] w-full min-h-[300px] h-auto md:h-full flex items-center justify-center relative md:min-h-[400px]">
                 
                 {/* Beige tone circular highlight behind sample */}
                 <div className="absolute w-[240px] h-[240px] md:w-[380px] md:h-[380px] rounded-full bg-[#E6D9C5]/40 blur-3xl -z-10 pointer-events-none" />
@@ -139,7 +139,7 @@ export const CollectionChamDoi: React.FC<CollectionChamDoiProps> = ({
                 <img 
                   src={style.imgUrl} 
                   alt={style.nameEn} 
-                  className="w-full h-full max-w-[600px] md:max-w-[800px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-110 md:scale-[1.2] lg:scale-[1.3] translate-x-3 md:translate-x-6 z-20 transition-transform duration-700 ease-out hover:scale-[1.15] md:hover:scale-[1.25] lg:hover:scale-[1.35]"
+                  className="w-full h-full max-w-[600px] md:max-w-[800px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-100 md:scale-[1.2] lg:scale-[1.3] translate-x-0 md:translate-x-6 z-20 transition-transform duration-700 ease-out hover:scale-[1.15] md:hover:scale-[1.25] lg:hover:scale-[1.35]"
                  referrerPolicy="no-referrer"  />
               </div>
             </div>

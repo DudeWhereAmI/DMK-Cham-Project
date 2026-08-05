@@ -177,6 +177,7 @@ const doesItemMatch = (item: any, filterCategory: string, filterElement: string)
 
 interface UserProfileProps {
   lang: 'vi' | 'en';
+  onLanguageChange?: (lang: 'vi' | 'en') => void;
   onLogout: () => void;
   wishlistIds?: string[];
   onToggleWishlist?: (productId: string) => void;
@@ -203,7 +204,7 @@ interface Order {
   userId?: string;
 }
 
-export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishlistIds = [], onToggleWishlist, onSelectProduct }) => {
+export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLanguageChange, onLogout, wishlistIds = [], onToggleWishlist, onSelectProduct }) => {
   const isAllowedAdmin = auth.currentUser?.email === 'hoangphucunknown@gmail.com' || auth.currentUser?.email === 'hla0712006@gmail.com';
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'favorites' | 'settings' | 'inventory'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -1586,8 +1587,33 @@ export const UserProfile: React.FC<UserProfileProps> = ({ lang, onLogout, wishli
           )}
 
           {activeTab === 'settings' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 h-full min-h-[500px] flex items-center justify-center">
-               <p className="text-slate-400 font-medium">{lang === 'vi' ? 'Cài đặt đang phát triển' : 'Settings section in development'}</p>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 min-h-[500px]">
+              <h2 className="text-2xl font-black text-[#00687A] tracking-wider uppercase mb-8">
+                {lang === 'vi' ? 'Cài Đặt Hệ Thống' : 'System Settings'}
+              </h2>
+              
+              <div className="max-w-md space-y-8">
+                {/* Language Setting */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest border-b border-slate-100 pb-2">
+                    {lang === 'vi' ? 'Ngôn Ngữ' : 'Language'}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => onLanguageChange?.('vi')}
+                      className={`py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all ${lang === 'vi' ? 'border-[#00687A] bg-[#00687A]/5 text-[#00687A]' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                    >
+                      Tiếng Việt (VI)
+                    </button>
+                    <button 
+                      onClick={() => onLanguageChange?.('en')}
+                      className={`py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all ${lang === 'en' ? 'border-[#00687A] bg-[#00687A]/5 text-[#00687A]' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                    >
+                      English (EN)
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

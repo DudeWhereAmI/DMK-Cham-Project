@@ -41,7 +41,7 @@ export const CollectionLanding: React.FC<CollectionLandingProps> = ({
   }, [initialElementId]);
 
   return (
-    <div className="w-full h-[80vh] min-h-[600px] overflow-hidden flex flex-col md:flex-row">
+    <div className="w-full h-[100vh] min-h-[700px] md:h-[80vh] md:min-h-[600px] overflow-y-auto md:overflow-hidden flex flex-col md:flex-row">
       {ELEMENTS.map((element, index) => {
         const isActive = activeIndex === index;
         
@@ -52,7 +52,7 @@ export const CollectionLanding: React.FC<CollectionLandingProps> = ({
             className={`
               relative flex flex-col md:flex-row items-center justify-center 
               transition-all duration-700 ease-in-out overflow-hidden cursor-pointer
-              ${isActive ? 'flex-[5] md:flex-[4]' : 'flex-1'}
+              ${isActive ? "min-h-[100vh] h-max md:h-auto py-12 md:py-0 md:flex-[4] flex-shrink-0" : "h-[80px] min-h-[80px] md:h-auto md:flex-1 flex-shrink-0"}
             `}
             style={{ 
               backgroundColor: isActive ? element.colorHex : `${element.colorHex}40`,
@@ -80,7 +80,7 @@ export const CollectionLanding: React.FC<CollectionLandingProps> = ({
 
             {/* Active State Content */}
             <div className={`
-              w-full h-full flex flex-col md:flex-row items-center justify-between p-8 md:p-12 z-10 transition-opacity duration-700 delay-300
+              w-full h-max min-h-full flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 p-8 md:p-12 z-10 transition-opacity duration-700 delay-300
               ${isActive ? 'opacity-100' : 'opacity-0 hidden'}
             `}>
               
@@ -166,19 +166,19 @@ export const CollectionLanding: React.FC<CollectionLandingProps> = ({
               </div>
 
               {/* Center Image (Layering) */}
-              <div className="flex-[2] h-full flex items-center justify-center relative min-h-[400px]">
+              <div className="flex-none md:flex-[2] w-full min-h-[300px] h-auto md:h-full flex items-center justify-center relative md:min-h-[400px] ">
                 {/* Beige tone circular highlight behind guardian */}
                 <div className="absolute w-[280px] h-[280px] md:w-[450px] md:h-[450px] rounded-full bg-[#E6D9C5]/40 blur-3xl -z-10 pointer-events-none" />
 
                 {/* Guardian Image */}
                 {(() => {
                   const isWaterOrFire = element.type === 'THUY' || element.type === 'HOA';
-                  const imgSizeClass = isWaterOrFire
-                    ? 'w-[125%] h-[125%] max-w-[850px] md:max-w-[1150px]'
-                    : 'w-[130%] h-[130%] max-w-[900px] md:max-w-[1200px]';
-                  const imgScaleClass = isWaterOrFire
-                    ? 'scale-[1.45] md:scale-[1.75] lg:scale-[1.95] hover:scale-[1.5] md:hover:scale-[1.8] lg:hover:scale-[2.0]'
-                    : 'scale-[1.6] md:scale-[1.95] lg:scale-[2.2] hover:scale-[1.65] md:hover:scale-[2.0] lg:hover:scale-[2.25]';
+                    const imgSizeClass = isWaterOrFire
+    ? 'w-[90%] h-[90%] md:w-[125%] md:h-[125%] max-w-[400px] md:max-w-[1150px]'
+    : 'w-[100%] h-[100%] md:w-[130%] md:h-[130%] max-w-[450px] md:max-w-[1200px]';
+                    const imgScaleClass = isWaterOrFire
+    ? 'scale-[1.0] md:scale-[1.75] lg:scale-[1.95] hover:scale-[1.05] md:hover:scale-[1.8] lg:hover:scale-[2.0]'
+    : 'scale-[1.0] md:scale-[1.95] lg:scale-[2.2] hover:scale-[1.05] md:hover:scale-[2.0] lg:hover:scale-[2.25]';
                   const imgTranslateClass = isWaterOrFire
                     ? 'translate-x-6 md:translate-x-12 lg:translate-x-8'
                     : 'translate-x-6 md:translate-x-12 lg:translate-x-10';

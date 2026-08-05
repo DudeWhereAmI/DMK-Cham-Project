@@ -24,7 +24,7 @@ const COMBOS: ComboProfile[] = [
     colorHex: '#00687A',
     gradientFrom: '#008C9A',
     gradientTo: '#00485A',
-    imgUrl: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@8c3283d652661f5c4524e67d35f7057b8c547916/M%E1%BA%AAU.png'
+    imgUrl: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/%E1%BA%A2NH%20COLLECTION%20CH%E1%BA%A0M%20%C4%90%C3%94I%20%E1%BB%9E%20TRANG%20CH%E1%BB%A6%20.png'
   },
   {
     id: 'couple_combo',
@@ -35,7 +35,7 @@ const COMBOS: ComboProfile[] = [
     colorHex: '#E28C9A',
     gradientFrom: '#FFD3D4',
     gradientTo: '#E59CA0',
-    imgUrl: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@8c3283d652661f5c4524e67d35f7057b8c547916/M%E1%BA%AAU.png'
+    imgUrl: 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/%E1%BA%A2NH%20COLLECTION%20CH%E1%BA%A0M%20%C4%90%C3%94I%20%E1%BB%9E%20TRANG%20CH%E1%BB%A6%20.png'
   }
 ];
 
@@ -68,11 +68,11 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
     }
   };
 
-  const getComboImage = (comboId: string) => {
+    const getComboImage = (comboId: string) => {
     if (comboId === 'couple_combo') {
       return newComboImage;
     } else {
-      return 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/%E1%BA%A3nh%20combo%20ch%E1%BA%A1m%20c%C3%B9ng%20nhau%20.png';
+      return 'https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/%E1%BA%A2NH%20COLLECTION%20CH%E1%BA%A0M%20%C4%90%C3%94I%20%E1%BB%9E%20TRANG%20CH%E1%BB%A6%20.png';
     }
   };
 
@@ -90,7 +90,7 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
             className={`
               relative flex flex-col md:flex-row items-center justify-center 
               transition-all duration-1000 ease-in-out overflow-hidden cursor-pointer
-              ${isActive ? 'flex-[4]' : 'flex-1'}
+              ${isActive ? "min-h-[100vh] h-max md:h-auto py-12 md:py-0 md:flex-[4] flex-shrink-0" : "h-[80px] min-h-[80px] md:h-auto md:flex-1 flex-shrink-0"}
             `}
             style={{ 
               backgroundColor: isActive ? combo.colorHex : `${combo.colorHex}40`,
@@ -118,12 +118,12 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
 
             {/* Active State Content */}
             <div className={`
-              w-full h-full flex flex-col md:flex-row items-center justify-between p-8 md:p-12 z-10 transition-opacity duration-1000 delay-300
+              w-full h-max min-h-full flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 p-8 md:p-12 z-10 transition-opacity duration-1000 delay-300
               ${isActive ? 'opacity-100' : 'opacity-0 hidden'}
             `}>
               
               {/* Left text */}
-              <div className="flex-1 flex flex-col items-start gap-4 z-30 relative md:mt-0 mt-8">
+              <div className="flex-1 flex flex-col items-start gap-4 z-30 relative mt-4 md:mt-0">
                 <div className="flex items-end gap-6 mb-2">
                   <span className="text-5xl md:text-6xl font-black text-white mix-blend-overlay">0{index + 1}</span>
                   <div className="flex flex-col items-start pb-1">
@@ -175,7 +175,7 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
               </div>
 
               {/* Center Image (Layering) */}
-              <div className="flex-[2] h-full flex items-center justify-center relative min-h-[300px] md:min-h-[400px]">
+              <div className="flex-none md:flex-[2] w-full min-h-[300px] h-auto md:h-full flex items-center justify-center relative md:min-h-[400px]">
                 
                 {/* Beige tone circular highlight behind sample */}
                 <div className="absolute w-[240px] h-[240px] md:w-[380px] md:h-[380px] rounded-full bg-[#E6D9C5]/40 blur-3xl -z-10 pointer-events-none" />
@@ -184,7 +184,7 @@ export const CollectionCombo: React.FC<CollectionComboProps> = ({
                 <img 
                   src={getComboImage(combo.id)} 
                   alt={combo.nameEn} 
-                  className="w-[100%] h-[100%] max-w-[500px] md:max-w-[600px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-110 z-20 translate-x-0 -translate-y-4 md:-translate-x-2 md:-translate-y-6 lg:-translate-x-4 lg:-translate-y-8 -rotate-3"
+                  className="w-[100%] h-[100%] max-w-[500px] md:max-w-[600px] object-contain drop-shadow-2xl mix-blend-multiply animate-float scale-100 z-20 translate-x-0 translate-y-0 md:-translate-x-2 md:-translate-y-6 lg:-translate-x-4 lg:-translate-y-8 -rotate-3"
                  referrerPolicy="no-referrer"  />
               </div>
             </div>

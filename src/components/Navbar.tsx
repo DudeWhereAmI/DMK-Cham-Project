@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#FFDBE9] via-[#FFF2EF] to-[#D7FFFF] border-b border-[#E28C9A]/20 shadow-sm py-2.5 md:py-3 px-4 sm:px-6 lg:px-8 font-sans">
+    <header className="hidden md:block sticky top-0 z-40 bg-gradient-to-r from-[#FFDBE9] via-[#FFF2EF] to-[#D7FFFF] border-b border-[#E28C9A]/20 shadow-sm py-2.5 md:py-3 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         
         {/* Logo Brand Frame */}
@@ -118,10 +118,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-1/4 max-w-[240px] cursor-pointer group/card flex flex-col"
                   onClick={() => handleNavigate('collection_cham_toi')}
                 >
-                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-[4/5] flex items-center justify-center relative">
+                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-square flex items-center justify-center relative">
                     <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                     <div className="absolute inset-0 bg-[#E28C9A]/5 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%201%20%C4%91o%E1%BA%A1n%20BST.png.png" alt="Collection 01" className="w-full h-full object-contain scale-[2.4] translate-x-[4%] mix-blend-multiply group-hover/card:scale-[2.5] group-hover/card:translate-x-[4%] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%201%20%C4%91o%E1%BA%A1n%20BST.png.png" alt="Collection 01" className="w-full h-full object-contain scale-[1.25] translate-x-[4%] mix-blend-multiply group-hover/card:scale-[1.25] group-hover/card:translate-x-[4%] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="mt-4 pt-3 border-t-[3px] border-[#00687A]/10 group-hover/card:border-[#00687A] transition-colors">
                     <h4 className="font-bold text-[#00687A] uppercase text-sm md:text-base tracking-widest">{lang === 'vi' ? 'Chạm Tôi' : 'Touch Me'}</h4>
@@ -134,10 +134,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-1/4 max-w-[240px] cursor-pointer group/card flex flex-col relative"
                   onClick={() => handleNavigate('collection_cham_than')}
                 >
-                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-[4/5] flex items-center justify-center relative">
+                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-square flex items-center justify-center relative">
                     <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                     <div className="absolute inset-0 bg-[#00687A]/5 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%202%20%C4%91o%E1%BA%A1n%20BST.png" alt="Collection 02" className="w-full h-full object-contain scale-[2.0] mix-blend-multiply group-hover/card:scale-[2.1] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%202%20%C4%91o%E1%BA%A1n%20BST.png" alt="Collection 02" className="w-full h-full object-contain scale-[1.25] mix-blend-multiply group-hover/card:scale-[1.25] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="mt-4 pt-3 border-t-[3px] border-[#00687A]/10 group-hover/card:border-[#00687A] transition-colors flex flex-col relative group/sub">
                     <div className="flex justify-between items-center w-full">
@@ -154,10 +154,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-1/4 max-w-[240px] cursor-pointer group/card flex flex-col"
                   onClick={() => handleNavigate('collection_cham_doi')}
                 >
-                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-[4/5] flex items-center justify-center relative">
+                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-square flex items-center justify-center relative">
                     <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                     <div className="absolute inset-0 bg-[#00687A]/5 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%203%20%C4%91o%E1%BA%A1n%20BST.png.png" alt="Collection 03" className="w-full h-full object-contain scale-[2.25] mix-blend-multiply group-hover/card:scale-[2.35] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/collection%203%20%C4%91o%E1%BA%A1n%20BST.png.png" alt="Collection 03" className="w-full h-full object-contain scale-[1.25] mix-blend-multiply group-hover/card:scale-[1.25] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="mt-4 pt-3 border-t-[3px] border-[#00687A]/10 group-hover/card:border-[#00687A] transition-colors">
                     <h4 className="font-bold text-[#00687A] uppercase text-sm md:text-base tracking-widest">{lang === 'vi' ? 'Chạm Đôi' : 'Touch Us'}</h4>
@@ -170,10 +170,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-1/4 max-w-[240px] cursor-pointer group/card flex flex-col"
                   onClick={() => handleNavigate('collection_combo')}
                 >
-                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-[4/5] flex items-center justify-center relative">
+                  <div className="bg-[#fcfcfc] rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-6 aspect-square flex items-center justify-center relative">
                     <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@7e6c6bd2663bb6a12887178ea97749063e65f398/Des276%20(1000%20x%20500%20px).png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-multiply pointer-events-none" referrerPolicy="no-referrer"  />
                     <div className="absolute inset-0 bg-[#E28C9A]/5 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/combo%20thay%20%C4%91o%E1%BA%A1n%20BST.png" alt="Combo" className="w-full h-full object-contain scale-[2.4] translate-x-[4%] mix-blend-multiply group-hover/card:scale-[2.5] group-hover/card:translate-x-[4%] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
+                    <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@ed49c7fb37b8188fd6af54a285bdb84289237822/new/thay%20%E1%BA%A3nh%20%C4%91o%E1%BA%A1n%20b%E1%BB%99%20s%C6%B0u%20t%E1%BA%ADp%20tr%C6%B0%E1%BB%9Bc%20khi%20b%E1%BA%A5m%20v%C3%A0o/combo%20thay%20%C4%91o%E1%BA%A1n%20BST.png" alt="Combo" className="w-full h-full object-contain scale-[1.25] translate-x-[4%] mix-blend-multiply group-hover/card:scale-[1.25] group-hover/card:translate-x-[4%] transition-transform duration-500 relative z-10"  referrerPolicy="no-referrer"  />
                   </div>
                   <div className="mt-4 pt-3 border-t-[3px] border-[#00687A]/10 group-hover/card:border-[#00687A] transition-colors">
                     <h4 className="font-bold text-[#00687A] uppercase text-sm md:text-base tracking-widest">{lang === 'vi' ? 'Combo' : 'Combo Sets'}</h4>

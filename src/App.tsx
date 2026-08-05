@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Product, CustomizationState, CartItem, ElementType } from './types';
 import { PRODUCTS, ELEMENTS, CHARMS, BASE_STYLES, LETTERING_PRICING, getProductBasePrice } from './data';
 import { Navbar } from './components/Navbar';
+import { MobileBottomNav } from './components/MobileNavigation';
+import { TouchpointPage } from './components/TouchpointPage';
 import { ShopGrid } from './components/ShopGrid';
 import { LandingPage } from './components/LandingPage';
 import { ProductVisualizer } from './components/ProductVisualizer';
@@ -90,12 +92,27 @@ export const LogoVertical = ({ className }: { className?: string }) => {
 
 export default function App() {
   // Navigation states with home view as default
-  const [currentView, setCurrentView] = useState<'home' | 'shop' | 'customizer' | 'about' | 'vision' | 'warranty' | 'return_policy' | 'contact' | 'element' | 'materials' | 'login' | 'register' | 'profile' | 'checkout' | 'cart' | 'collection_cham_than' | 'collection_cham_toi' | 'collection_cham_doi'>('home');
+  const [currentView, setCurrentView] = useState<'touchpoint' | 'home' | 'shop' | 'customizer' | 'about' | 'vision' | 'warranty' | 'return_policy' | 'contact' | 'element' | 'materials' | 'login' | 'register' | 'profile' | 'checkout' | 'cart' | 'collection_cham_than' | 'collection_cham_toi' | 'collection_cham_doi' | 'collection_combo'>('touchpoint');
   const [customizerBackState, setCustomizerBackState] = useState<{ view: string; elementId?: string } | null>(null);
   const [checkoutOrigin, setCheckoutOrigin] = useState<string>('home');
   const [chamToiInitialIndex, setChamToiInitialIndex] = useState(0);
   const [chamToiInitialProductId, setChamToiInitialProductId] = useState<string | undefined>(undefined);
   const [customizerMode, setCustomizerMode] = useState<'full' | 'font-only' | 'charm-only' | 'couple' | 'double-sided'>('full');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [pendingView, setPendingView] = useState<string | null>(null);
+
+  const handleNavigate = (view: string) => {
+    setIsTransitioning(true);
+    setPendingView(view);
+    setTimeout(() => {
+      setCurrentView(view as any);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setPendingView(null);
+      }, 500); // Wait a bit for fade-in of new view
+    }, 600); // Fade out duration
+  };
   const [activeTab, setActiveTab] = useState<'p1' | 'p2'>('p1');
   const [selectedProduct, setSelectedProduct] = useState<Product>(PRODUCTS[0]);
   const [selectedElementId, setSelectedElementId] = useState<string>('kim');
@@ -374,8 +391,7 @@ export default function App() {
     });
     
     setCustomizerMode(customizerMode || 'full');
-    setCurrentView('customizer');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigate('customizer');
   };
 
   // Cost calculator
@@ -640,7 +656,26 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-transparent relative">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col font-sans relative">
+      {/* Loading Transition Overlay */}
+      <div 
+        className={`fixed inset-0 z-[100] bg-[#FAFAF8] flex flex-col items-center justify-center transition-all duration-500 pointer-events-none ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
+      >
+        <div className={`transition-all duration-500 delay-100 flex flex-col items-center justify-center ${isTransitioning ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'}`}>
+          <img 
+            src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@4f54e36f4edb0f4fb21768cae473d0fbcf33c436/LOGO%20.png" 
+            alt="Chạm Logo" 
+            className="h-20 md:h-24 w-auto object-contain drop-shadow-sm opacity-90 mx-auto mb-4"
+            referrerPolicy="no-referrer"
+          />
+          <span className="font-serif font-black uppercase tracking-widest text-lg md:text-xl text-[#00687A]">
+            Chạm Elements
+          </span>
+        </div>
+      </div>
+      
+      <div className={`flex-1 flex flex-col transition-opacity duration-300 ${isTransitioning && pendingView ? 'opacity-0' : 'opacity-100'} flex flex-col justify-between bg-transparent relative`}>
+
       {/* Global Background Pattern at the very bottom */}
       <img src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@1d210243f851f1f56d6a41ba5c73144ff8636c8f/Des276%20(1000%20x%20500%20px).png" alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none -z-50" referrerPolicy="no-referrer"  />
       
@@ -648,31 +683,31 @@ export default function App() {
       <div className="fixed inset-0 w-full h-full bg-[#FBF5F2]/40 pointer-events-none -z-40" />
       
       {/* Brand Header */}
-      <Navbar 
-        cart={cart}
-        currentView={currentView}
-        onNavigate={(view) => {
-          if (view === 'shop') {
-            setShopFilter('all');
-            setCurrentView('shop');
-          } else {
-            setCurrentView(view);
-          }
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateElement={(id) => {
-          setSelectedElementId(id);
-          setCurrentView('element');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateMaterials={() => {
-          setCurrentView('materials');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onOpenCart={() => setIsCartOpen(true)}
-        lang={lang}
-        onLanguageChange={(newLang) => setLang(newLang)}
-      />
+      {currentView !== 'touchpoint' && (
+        <Navbar 
+          cart={cart}
+          currentView={currentView}
+          onNavigate={(view) => {
+            if (view === 'shop') {
+              setShopFilter('all');
+              setCurrentView('shop');
+            } else {
+              setCurrentView(view);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onNavigateElement={(id) => {
+            setSelectedElementId(id);
+            handleNavigate('element');
+          }}
+          onNavigateMaterials={() => {
+            handleNavigate('materials');
+          }}
+          onOpenCart={() => setIsCartOpen(true)}
+          lang={lang}
+          onLanguageChange={(newLang) => setLang(newLang)}
+        />
+      )}
 
       {/* Floating global notification alert banner */}
       {alertMessage && (
@@ -688,46 +723,29 @@ export default function App() {
       )}
 
       {/* Main Content body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {currentView === 'touchpoint' && (
+        <TouchpointPage 
+          lang={lang}
+          onNavigateHome={() => handleNavigate('home')}
+          onNavigateLogin={() => handleNavigate('login')}
+          onNavigateRegister={() => handleNavigate('register')}
+        />
+      )}
+
+      {currentView !== 'touchpoint' && (
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* VIEW 0: BRAND LANDING PAGE AKA TRANG CHU */}
         {currentView === 'home' && (
           <LandingPage 
             lang={lang} 
             onEnterShop={() => {
-              setCurrentView('shop');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateElement={(id) => {
-              setSelectedElementId(id);
-              setCurrentView('collection_cham_than');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('shop');
             }}
             onNavigateCollection={(collectionId) => {
               if (collectionId === 'collection-01') setCurrentView('collection_cham_toi');
-              else if (collectionId === 'collection-02') setCurrentView('collection_cham_doi');
-              else if (collectionId === 'collection-03') setCurrentView('collection_cham_than');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateAbout={() => {
-              setCurrentView('about');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateMaterials={() => {
-              setCurrentView('materials');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateToChamToi={(index) => {
-              setChamToiInitialIndex(index);
-              setChamToiInitialProductId(undefined); // Reset for clips
-              setCurrentView('collection_cham_toi');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateToChamToiGuong={() => {
-              setChamToiInitialIndex(0); // Embossed
-              setChamToiInitialProductId('guong');
-              setCurrentView('collection_cham_toi');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              else if (collectionId === 'collection-02') setCurrentView('collection_cham_than');
+              else if (collectionId === 'collection-03') handleNavigate('collection_cham_doi');
             }}
           />
         )}
@@ -757,8 +775,7 @@ export default function App() {
                 view: 'collection_cham_than',
                 elementId: elementId.toLowerCase()
               });
-              setCurrentView('customizer');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('customizer');
             }}
           />
         )}
@@ -788,8 +805,7 @@ export default function App() {
               setCustomizerBackState({
                 view: 'collection_cham_toi'
               });
-              setCurrentView('customizer');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('customizer');
             }}
           />
         )}
@@ -827,8 +843,7 @@ export default function App() {
               setCustomizerBackState({
                 view: 'collection_cham_doi'
               });
-              setCurrentView('customizer');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('customizer');
             }}
           />
         )}
@@ -873,8 +888,7 @@ export default function App() {
               setCustomizerBackState({
                 view: 'collection_combo'
               });
-              setCurrentView('customizer');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('customizer');
             }}
           />
         )}
@@ -886,8 +900,10 @@ export default function App() {
             lang={lang}
             onNavigateBack={() => {
               setCurrentView('home');
-              const el = document.getElementById('encyclopedia-section');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              setTimeout(() => {
+                const el = document.getElementById('encyclopedia-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
             }}
             onEnterShop={(productId) => {
               setCustomizerMode('charm-only');
@@ -909,8 +925,7 @@ export default function App() {
                 view: 'element',
                 elementId: selectedElementId.toLowerCase()
               });
-              setCurrentView('customizer');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('customizer');
             }}
           />
         )}
@@ -920,12 +935,10 @@ export default function App() {
           <MaterialsSubpage 
             lang={lang}
             onNavigateHome={() => {
-              setCurrentView('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('home');
             }}
             onNavigateShop={() => {
-              setCurrentView('shop');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('shop');
             }}
           />
         )}
@@ -939,8 +952,7 @@ export default function App() {
             onToggleWishlist={handleToggleWishlist}
             initialFilter={shopFilter}
             onNavigate={(view) => {
-              setCurrentView(view as any);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate(view);
             }}
           />
         )}
@@ -1023,16 +1035,13 @@ export default function App() {
             isGlobalDiscountApplied={isGlobalDiscountApplied}
             setIsGlobalDiscountApplied={setIsGlobalDiscountApplied}
             onNavigateHome={() => {
-              setCurrentView('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('home');
             }}
             onNavigateToShop={() => {
-              setCurrentView(checkoutOrigin as any);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate(checkoutOrigin);
             }}
             onNavigateToLogin={() => {
-              setCurrentView('login');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('login');
             }}
             clearCart={handleClearCart}
             onCheckoutSuccess={() => {
@@ -1060,12 +1069,10 @@ export default function App() {
             onRemoveItem={handleRemoveItem}
             onNavigateToCheckout={() => {
               setCheckoutOrigin('home');
-              setCurrentView('checkout');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('checkout');
             }}
             onNavigateHome={() => {
-              setCurrentView('shop');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('shop');
             }}
             onAddToCart={handleAddToCartFromPicks}
           />
@@ -1076,12 +1083,10 @@ export default function App() {
           <SignInForm 
             lang={lang} 
             onNavigateRegister={() => {
-              setCurrentView('register');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('register');
             }}
             onLoginSuccess={() => {
-              setCurrentView('profile');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('profile');
             }}
           />
         )}
@@ -1091,12 +1096,10 @@ export default function App() {
           <RegisterForm 
             lang={lang} 
             onNavigateLogin={() => {
-              setCurrentView('login');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('login');
             }}
             onLoginSuccess={() => {
-              setCurrentView('profile');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('profile');
             }}
           />
         )}
@@ -1105,9 +1108,9 @@ export default function App() {
         {currentView === 'profile' && (
           <UserProfile
             lang={lang}
+            onLanguageChange={(newLang) => setLang(newLang)}
             onLogout={() => {
-              setCurrentView('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavigate('home');
             }}
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
@@ -1116,102 +1119,119 @@ export default function App() {
         )}
 
       </main>
+      )}
 
-      {/* Shared Cart Drawer controller */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-        lang={lang}
-        onNavigateReturnPolicy={() => {
-           setCurrentView('return_policy');
-           setIsCartOpen(false);
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateToCheckout={() => {
-           setCheckoutOrigin('home');
-           setCurrentView('checkout');
-           setIsCartOpen(false);
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateToCart={() => {
-           setCurrentView('cart');
-           setIsCartOpen(false);
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateHome={() => {
-           setCurrentView('home');
-           setIsCartOpen(false);
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
+      {currentView !== 'touchpoint' && (
+        <>
+          {/* Shared Cart Drawer controller */}
+          <CartDrawer
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cart={cart}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            lang={lang}
+            onNavigateReturnPolicy={() => {
+               setIsCartOpen(false);
+               handleNavigate('return_policy');
+            }}
+            onNavigateToCheckout={() => {
+               setCheckoutOrigin('home');
+               setIsCartOpen(false);
+               handleNavigate('checkout');
+            }}
+            onNavigateToCart={() => {
+               setIsCartOpen(false);
+               handleNavigate('cart');
+            }}
+            onNavigateHome={() => {
+               setIsCartOpen(false);
+               handleNavigate('home');
+            }}
+          />
 
-      {/* Style footer branding */}
-      <footer className="bg-[#00687A] text-[#FBF5F2] pt-16 pb-8 mt-16 shadow-inner font-sans relative overflow-hidden">
-        {/* Subtle decorative background */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url('https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 pb-12 border-b border-white/10 items-start">
+          {/* Mobile Bottom Navigation */}
+          <MobileBottomNav 
+            cart={cart}
+            currentView={currentView}
+            onNavigate={(view) => {
+              setIsCartOpen(false);
+              if (view === 'shop') {
+                setShopFilter('all');
+                handleNavigate('shop');
+              } else {
+                handleNavigate(view);
+              }
+            }}
+            onOpenCart={() => setIsCartOpen(true)}
+            lang={lang}
+            onLanguageChange={(newLang) => setLang(newLang)}
+          />
+
+          {/* Style footer branding */}
+          <footer className="bg-[#00687A] text-[#FBF5F2] pt-16 pb-28 md:pb-8 mt-16 shadow-inner font-sans relative overflow-hidden">
+            {/* Subtle decorative background */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url('https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@63f722cf71afbdc305860327c408c71b406e9090/Landing%20Page.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
             
-            {/* Left Column: Logo, Socials & Support */}
-            <div className="flex flex-col gap-10 lg:col-span-5 pt-2">
-              <div className="flex flex-col items-center gap-6">
-                <button 
-                  type="button"
-                  onClick={() => { setCurrentView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="group cursor-pointer hover:opacity-90 transition-opacity flex justify-center w-full"
-                >
-                  <img 
-                    src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@4f54e36f4edb0f4fb21768cae473d0fbcf33c436/LOGO%20.png" 
-                    alt="Chạm Logo" 
-                    className="h-32 sm:h-40 md:h-44 w-auto object-contain drop-shadow-2xl"
-                    referrerPolicy="no-referrer"
-                   />
-                </button>
-                <div className="flex items-center justify-center gap-4 text-white w-full -mt-2">
-                  <a href="https://www.facebook.com/profile.php?id=61591049410705" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
-                    <Facebook className="w-4 h-4" />
-                  </a>
-                  <a href="https://www.tiktok.com/@cham.elements?_r=1&_t=ZS-97WdJdLmO6H" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.46-.23-2.61.88-5.26 2.87-6.87 1.4-.95 3.12-1.36 4.79-1.12.02 1.25-.01 2.49.02 3.73-.78-.1-1.57-.1-2.32.18-.75.29-1.35.88-1.63 1.63-.3.8-.26 1.72.16 2.49.46.85 1.34 1.45 2.3 1.51 1.4.11 2.8-.57 3.51-1.74.37-.62.59-1.35.59-2.09V.02h4.52z"/></svg>
-                  </a>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 pb-12 border-b border-white/10 items-start">
+                
+                {/* Left Column: Logo, Socials & Support */}
+                <div className="flex flex-col gap-10 lg:col-span-5 pt-2">
+                  <div className="flex flex-col items-center gap-6">
+                    <button 
+                      type="button"
+                      onClick={() => { handleNavigate('home'); }}
+                      className="group cursor-pointer hover:opacity-90 transition-opacity flex justify-center w-full"
+                    >
+                      <img 
+                        src="https://cdn.jsdelivr.net/gh/DudeWhereAmI/Digital-Marketing-ISB-Cham-Project@4f54e36f4edb0f4fb21768cae473d0fbcf33c436/LOGO%20.png" 
+                        alt="Chạm Logo" 
+                        className="h-32 sm:h-40 md:h-44 w-auto object-contain drop-shadow-2xl"
+                        referrerPolicy="no-referrer"
+                       />
+                    </button>
+                    <div className="flex items-center justify-center gap-4 text-white w-full -mt-2">
+                      <a href="https://www.facebook.com/profile.php?id=61591049410705" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
+                        <Facebook className="w-4 h-4" />
+                      </a>
+                      <a href="https://www.tiktok.com/@cham.elements?_r=1&_t=ZS-97WdJdLmO6H" target="_blank" rel="noopener noreferrer" className="hover:bg-white hover:text-[#00687A] transition-colors p-2.5 rounded-full border border-white/70 flex justify-center items-center h-10 w-10">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.46-.23-2.61.88-5.26 2.87-6.87 1.4-.95 3.12-1.36 4.79-1.12.02 1.25-.01 2.49.02 3.73-.78-.1-1.57-.1-2.32.18-.75.29-1.35.88-1.63 1.63-.3.8-.26 1.72.16 2.49.46.85 1.34 1.45 2.3 1.51 1.4.11 2.8-.57 3.51-1.74.37-.62.59-1.35.59-2.09V.02h4.52z"/></svg>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Customer Support */}
+                  <div className="flex flex-col gap-4 text-sm text-left w-full lg:max-w-sm mt-4">
+                     <div className="flex items-start gap-4 text-white">
+                       <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                       <p className="font-bold uppercase leading-tight tracking-wide text-sm">
+                         UEH - Cơ sở B - 279 Nguyễn Tri Phương, Phường Diên Hồng, TP.HCM
+                       </p>
+                     </div>
+                     <div className="flex items-start gap-4 text-white">
+                       <Phone className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                       <div className="flex flex-col gap-1">
+                         <a href="tel:0918620232" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
+                           0918 620 232 (Ms. Hà Anh)
+                         </a>
+                         <a href="tel:0365092373" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
+                           0365 092 373 (Mr. Anh Khôi)
+                         </a>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-4 text-white">
+                       <Mail className="w-6 h-6 flex-shrink-0" />
+                       <a href="mailto:cham.elements@gmail.com" className="font-bold tracking-wide text-sm hover:text-gray-200 transition">
+                         cham.elements@gmail.com
+                       </a>
+                     </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Customer Support */}
-              <div className="flex flex-col gap-4 text-sm text-left w-full lg:max-w-sm mt-4">
-                 <div className="flex items-start gap-4 text-white">
-                   <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5" />
-                   <p className="font-bold uppercase leading-tight tracking-wide text-sm">
-                     UEH - Cơ sở B - 279 Nguyễn Tri Phương, Phường Diên Hồng, TP.HCM
-                   </p>
-                 </div>
-                 <div className="flex items-start gap-4 text-white">
-                   <Phone className="w-6 h-6 flex-shrink-0 mt-0.5" />
-                   <div className="flex flex-col gap-1">
-                     <a href="tel:0918620232" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
-                       0918 620 232 (Ms. Hà Anh)
-                     </a>
-                     <a href="tel:0365092373" className="font-bold uppercase tracking-wide text-sm hover:text-gray-200 transition">
-                       0365 092 373 (Mr. Anh Khôi)
-                     </a>
-                   </div>
-                 </div>
-                 <div className="flex items-center gap-4 text-white">
-                   <Mail className="w-6 h-6 flex-shrink-0" />
-                   <a href="mailto:cham.elements@gmail.com" className="font-bold tracking-wide text-sm hover:text-gray-200 transition">
-                     cham.elements@gmail.com
-                   </a>
-                 </div>
-              </div>
-            </div>
-
-            {/* Right Column: Links, Payment, Newsletter */}
-            <div className="flex flex-col gap-10 lg:col-span-7 pt-2 lg:pl-8 justify-between h-full">
+                {/* Right Column: Links, Payment, Newsletter */}
+                <div className="hidden lg:flex flex-col gap-10 lg:col-span-7 pt-2 lg:pl-8 justify-between h-full">
               {/* Top Row: Hỗ Trợ & Câu Chuyện */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 lg:gap-8 text-sm text-center lg:text-left">
                  {/* Hỗ Trợ */}
@@ -1219,13 +1239,13 @@ export default function App() {
                     <h3 className="font-black text-white uppercase text-base tracking-wider mb-2">
                       {lang === 'vi' ? 'Hỗ Trợ' : 'Help Centre'}
                     </h3>
-                    <button onClick={() => { setCurrentView('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
+                    <button onClick={() => { handleNavigate('contact'); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Liên Hệ' : 'Contact Us'}
                     </button>
-                    <button onClick={() => { setCurrentView('warranty'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
+                    <button onClick={() => { handleNavigate('warranty'); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Chính Sách Bảo Hành' : 'Warranty Rights'}
                     </button>
-                    <button onClick={() => { setCurrentView('return_policy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
+                    <button onClick={() => { handleNavigate('return_policy'); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Chính Sách Đổi Trả' : 'Returns & Refunds'}
                     </button>
                  </div>
@@ -1235,10 +1255,10 @@ export default function App() {
                     <h3 className="font-black text-white uppercase text-base tracking-wider mb-2">
                       {lang === 'vi' ? 'Câu Chuyện' : 'Our Story'}
                     </h3>
-                    <button onClick={() => { setCurrentView('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
+                    <button onClick={() => { handleNavigate('about'); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Về Chúng Tôi' : 'About Us'}
                     </button>
-                    <button onClick={() => { setCurrentView('vision'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
+                    <button onClick={() => { handleNavigate('vision'); }} className="font-semibold text-white/90 hover:text-white transition cursor-pointer text-xs uppercase tracking-wide">
                       {lang === 'vi' ? 'Tầm Nhìn' : 'Vision'}
                     </button>
                  </div>
@@ -1317,14 +1337,16 @@ export default function App() {
               <button className="hover:opacity-100 hover:underline transition uppercase tracking-wide">
                 {lang === 'vi' ? 'Cài Đặt Cookie' : 'Cookie Settings'}
               </button>
-              <button onClick={() => { setCurrentView('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:opacity-100 hover:underline transition uppercase tracking-wide">
+              <button onClick={() => { handleNavigate('contact'); }} className="hover:opacity-100 hover:underline transition uppercase tracking-wide">
                 {lang === 'vi' ? 'Liên Hệ' : 'Contact Us'}
               </button>
             </div>
           </div>
         </div>
       </footer>
-
+      </>
+      )}
+      </div>
     </div>
   );
 }
